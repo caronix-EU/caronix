@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 const carBlueprints = [
   "M8 46h4l4-9c2-4 7-7 14-7h20c7 0 12 3 14 7l4 9h4a3 3 0 013 3v6a3 3 0 01-3 3h-4a8 8 0 01-16 0H32a8 8 0 01-16 0h-4a3 3 0 01-3-3v-6a3 3 0 013-3z",
@@ -75,8 +76,15 @@ export default function LoginPage() {
         className="md:w-1/2 flex flex-col border-t md:border-t-0 md:border-l"
         style={{ backgroundColor: "#0E1013", borderColor: "#1E2126" }}
       >
-        <div className="flex justify-end p-6 md:p-8">
-          <div className="flex rounded-full border overflow-hidden text-xs" style={{ borderColor: "#2A2E34" }}>
+        <div className="flex justify-end items-center gap-3 p-6 md:p-8">
+  <Link
+    href="/dashboard"
+    className="text-xs px-3 py-1.5 rounded-full border transition-colors"
+    style={{ borderColor: "#2A2E34", color: "#8FA0B8" }}
+  >
+    Voorraad
+  </Link>
+  <div className="flex rounded-full border overflow-hidden text-xs" style={{ borderColor: "#2A2E34" }}>
             {(["NL", "EN"] as const).map((l) => (
               <button
                 key={l}
