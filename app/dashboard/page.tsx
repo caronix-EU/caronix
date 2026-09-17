@@ -1,30 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "../../lib/supabaseClient";
 
-const vehicles = [
-  { brand: "BMW", model: "5 Serie 520d", year: 2022, price: "€38.900", country: "Duitsland", km: "41.200 km", fuel: "Diesel", color: "Zwart", transmission: "Automaat" },
-  { brand: "Audi", model: "A6 Avant", year: 2021, price: "€34.500", country: "België", km: "58.900 km", fuel: "Diesel", color: "Grijs", transmission: "Automaat" },
-  { brand: "Mercedes-Benz", model: "C-Klasse", year: 2023, price: "€42.300", country: "Duitsland", km: "22.400 km", fuel: "Benzine", color: "Wit", transmission: "Automaat" },
-  { brand: "Volvo", model: "XC60", year: 2022, price: "€39.700", country: "Zweden", km: "36.100 km", fuel: "Hybride", color: "Blauw", transmission: "Automaat" },
-  { brand: "Škoda", model: "Superb Combi", year: 2021, price: "€27.800", country: "Tsjechië", km: "62.300 km", fuel: "Diesel", color: "Zilver", transmission: "Handgeschakeld" },
-  { brand: "Volkswagen", model: "Passat Variant", year: 2022, price: "€29.900", country: "Duitsland", km: "44.700 km", fuel: "Benzine", color: "Zwart", transmission: "Automaat" },
-];
+type Vehicle = {
+  id: number;
+  brand: string;
+  model: string;
+  uitvoering: string;
+  btw_type: string;
+  registration: number;
+  price: number;
+  km: number;
+  fuel: string;
+  color: string;
+  transmission: string;
+  country: string;
+  photo_urls: string[] | null;
+};
 
-const carPaths = [
-  "M8 46h4l4-9c2-4 7-7 14-7h20c7 0 12 3 14 7l4 9h4a3 3 0 013 3v6a3 3 0 01-3 3h-4a8 8 0 01-16 0H32a8 8 0 01-16 0h-4a3 3 0 01-3-3v-6a3 3 0 013-3z",
-  "M6 44h5l3-12c1.5-5 6-9 13-9h18c7 0 11.5 4 13 9l3 12h5a3 3 0 013 3v5a3 3 0 01-3 3h-4a8 8 0 01-16 0H30a8 8 0 01-16 0h-5a3 3 0 01-3-3v-5a3 3 0 013-3z",
-  "M10 45h3l6-13c2-5 8-9 15-9h9c6 0 10 3 12 8l5 14h3a3 3 0 013 3v4a3 3 0 01-3 3h-3a7 7 0 01-14 0H30a7 7 0 01-14 0h-3a3 3 0 01-3-3v-4a3 3 0 013-3z",
-];
-
-function SearchIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B7CA8" strokeWidth={2}>
-      <circle cx="11" cy="11" r="7" />
-      <path d="m21 21-4.3-4.3" />
-    </svg>
-  );
-}
 function CalendarIcon() {
   return (
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -51,6 +45,41 @@ function ChevronIcon() {
 
 export default function DashboardPage() {
   const [lang, setLang] = useState<"NL" | "EN">("NL");
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  useEffect(() => {
+    async function fetchVehicles() {
+      const { data, error } = await supabase
+        .from("vehicles")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        setError(error.message);
+      } else {
+        setVehicles(data as Vehicle[]);
+      }
+      setLoading(false);
+    }
+    fetchVehicles();
+  }, []);
+
+  async function handleDelete(id: number) {
+    const confirmed = window.confirm("Weet je zeker dat je dit voertuig wilt verwijderen? Dit kan niet ongedaan gemaakt worden.");
+    if (!confirmed) return;
+
+    setDeletingId(id);
+    const { error } = await supabase.from("vehicles").delete().eq("id", id);
+    if (error) {
+      alert("Verwijderen mislukt: " + error.message);
+    } else {
+      setVehicles((prev) => prev.filter((v) => v.id !== id));
+    }
+    setDeletingId(null);
+  }
 
   const chrome: React.CSSProperties = {
     backgroundImage:
@@ -81,8 +110,8 @@ export default function DashboardPage() {
         </div>
 
         <div className="hidden md:flex items-center gap-8 text-sm" style={{ color: "#8A929C" }}>
-          <a href="#" style={{ color: "#F2F3F4" }}>Aanbod</a>
-          <a href="#">Mijn aanvragen</a>
+          <a href="/dashboard" style={{ color: "#F2F3F4" }}>Aanbod</a>
+          <a href="/dashboard/nieuw">Voertuig toevoegen</a>
           <a href="#">Account</a>
         </div>
 
@@ -119,18 +148,11 @@ export default function DashboardPage() {
               Voertuigaanbod
             </h1>
             <p className="text-sm" style={{ color: "#7A828C" }}>
-              {vehicles.length} beschikbare occasions binnen de EU
+              {loading ? "Laden..." : `${vehicles.length} beschikbare occasions binnen de EU`}
             </p>
           </div>
 
-          <div className="flex items-center gap-2 border-b pb-2 w-full md:w-72" style={{ borderColor: "#2A2E34" }}>
-            <SearchIcon />
-            <input
-              placeholder="Zoek op merk of model..."
-              className="w-full bg-transparent outline-none text-sm"
-              style={{ color: "#F2F3F4" }}
-            />
-          </div>
+          <a href="/dashboard/nieuw" className="px-4 py-2 rounded-sm text-sm text-center" style={{ backgroundColor: "#2E5A94", color: "#F2F3F4" }}>+ Voertuig toevoegen</a>
         </div>
 
         {/* Filters regel 1 */}
@@ -159,7 +181,7 @@ export default function DashboardPage() {
               className="flex items-center gap-2 px-4 py-2 rounded-full text-xs border shrink-0"
               style={{ borderColor: "#2A2E34", color: "#8A929C" }}
             >
-              <span style={{ color: "#F2F3F4" }}>{f.label}</span>
+              <span style={{ color: "#8A929C" }}>{f.label}</span>
               <input placeholder={f.from} className="bg-transparent outline-none w-16" style={{ color: "#F2F3F4" }} />
               <span>–</span>
               <input placeholder={f.to} className="bg-transparent outline-none w-16" style={{ color: "#F2F3F4" }} />
@@ -167,49 +189,78 @@ export default function DashboardPage() {
           ))}
         </div>
 
+        {loading && <p style={{ color: "#7A828C" }}>Voertuigen laden...</p>}
+        {error && <p style={{ color: "#C0524E" }}>Er ging iets mis: {error}</p>}
+        {!loading && !error && vehicles.length === 0 && (
+          <p style={{ color: "#7A828C" }}>Nog geen voertuigen toegevoegd. Klik op "+ Voertuig toevoegen" om te beginnen.</p>
+        )}
+
         {/* Vehicle grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {vehicles.map((v, i) => (
+          {vehicles.map((v) => (
             <div
-              key={i}
+              key={v.id}
               className="rounded-md overflow-hidden border"
               style={{ backgroundColor: "#0E1013", borderColor: "#1E2126" }}
             >
               <div
-                className="h-36 flex items-center justify-center"
+                className="h-56 flex items-center justify-center overflow-hidden"
                 style={{ background: "linear-gradient(135deg,#12151A,#1C2128)" }}
               >
-                <svg viewBox="0 0 90 60" className="w-1/2 h-1/2">
-                  <path d={carPaths[i % 3]} fill="none" stroke="#4E6FA0" strokeWidth={1} opacity={0.6} />
-                </svg>
+                {v.photo_urls && v.photo_urls.length > 0 ? (
+                  <img src={v.photo_urls[0]} alt={`${v.brand} ${v.model}`} className="w-full h-full object-contain" />
+                ) : (
+                  <span className="text-xs" style={{ color: "#4E555E" }}>Geen foto</span>
+                )}
               </div>
 
               <div className="p-4">
                 <div className="flex items-start justify-between mb-1">
                   <div>
-                    <div className="text-sm" style={{ color: "#8A929C" }}>{v.brand}</div>
+                    <div className="text-sm" style={{ color: "#F2F3F4" }}>{v.brand}</div>
                     <div className="text-base" style={{ color: "#F2F3F4" }}>{v.model}</div>
+                    {v.uitvoering && (
+                      <div className="text-xs" style={{ color: "#F2F3F4" }}>{v.uitvoering}</div>
+                    )}
                   </div>
-                  <div className="text-base" style={{ color: "#7FA8D9", fontWeight: 600 }}>{v.price}</div>
+                  <div className="text-base" style={{ color: "#7FA8D9", fontWeight: 600 }}>
+                    {v.price ? `€${Number(v.price).toLocaleString("nl-NL")}` : "—"}
+                    {v.btw_type && (
+                      <div className="text-[10px] font-normal text-right mt-0.5" style={{ color: "#F2F3F4" }}>
+                        {v.btw_type}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-4 mt-3 text-xs" style={{ color: "#6E7680" }}>
-                  <span className="flex items-center gap-1"><CalendarIcon /> {v.year}</span>
-                  <span>{v.km}</span>
+                <div className="flex items-center gap-4 mt-3 text-xs" style={{ color: "#F2F3F4" }}>
+                  <span className="flex items-center gap-1"><CalendarIcon /> {v.registration}</span>
+                  <span>{v.km ? `${Number(v.km).toLocaleString("nl-NL")} km` : "—"}</span>
                   <span className="flex items-center gap-1"><PinIcon /> {v.country}</span>
                 </div>
-                <div className="flex items-center gap-4 mt-2 text-xs" style={{ color: "#6E7680" }}>
+                <div className="flex items-center gap-4 mt-2 text-xs" style={{ color: "#F2F3F4" }}>
                   <span>{v.fuel}</span>
                   <span>{v.color}</span>
                   <span>{v.transmission}</span>
                 </div>
 
-                <button
-                  className="w-full mt-4 py-2 text-xs rounded-sm"
-                  style={{ backgroundColor: "#2E5A94", color: "#F2F3F4" }}
-                >
-                  Bekijk details
-                </button>
+                <div className="flex gap-2 mt-4">
+                  <a 
+                    href={`/dashboard/bewerken/${v.id}`}
+                    className="flex-1 py-2 text-xs rounded-sm text-center"
+                    style={{ backgroundColor: "#2E5A94", color: "#F2F3F4" }}
+                  >
+                    Bewerken
+                  </a>
+                  <button
+                    onClick={() => handleDelete(v.id)}
+                    disabled={deletingId === v.id}
+                    className="flex-1 py-2 text-xs rounded-sm border"
+                    style={{ borderColor: "#5A2E2E", color: deletingId === v.id ? "#6E7680" : "#D98787", backgroundColor: "transparent" }}
+                  >
+                    {deletingId === v.id ? "Bezig..." : "Verwijderen"}
+                  </button>
+                </div>
               </div>
             </div>
           ))}
