@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -19,6 +19,7 @@ export default function LoginPage() {
   const [lang, setLang] = useState<"NL" | "EN">("NL");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showLogin, setShowLogin] = useState(false);
 
   const t = {
     NL: {
@@ -29,6 +30,10 @@ export default function LoginPage() {
       noAccount: "Nog geen account?",
       register: "Registreer hier",
       footer: "B2B-voertuigbemiddeling",
+      loginBtn: "Login",
+      companyHeading: "Caronix: Jouw betrouwbare partner in auto groothandel B2B",
+      companyText:
+        "Ben je op zoek naar een betrouwbare en efficiente manier om je wagenpark uit te breiden? Zoek niet verder! Bij Caronix geniet je van een scala aan voordelen die jouw bedrijf naar nieuwe hoogten zullen stuwen. Wij zijn gespecialiseerd in het in- en verkopen van personenauto's, met meer dan 25 jaar ervaring in de branche.",
     },
     EN: {
       loginTitle: "Log in to your account",
@@ -38,6 +43,10 @@ export default function LoginPage() {
       noAccount: "Don't have an account?",
       register: "Register here",
       footer: "B2B vehicle brokerage",
+      loginBtn: "Login",
+      companyHeading: "Caronix: Your trusted partner in B2B car wholesale",
+      companyText:
+        "Looking for a reliable and efficient way to expand your fleet? Look no further! At Caronix you will enjoy a range of benefits that will take your business to new heights. We specialize in buying and selling passenger cars, with over 25 years of experience in the industry.",
     },
   }[lang];
 
@@ -53,7 +62,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row" style={{ backgroundColor: "#08090B" }}>
-      {/* Left panel - photo grid (vervang de svg-tegels later door echte voertuigfoto's) */}
       <div
         className="md:w-1/2 min-h-[220px] md:min-h-screen grid grid-cols-3 grid-rows-3 gap-px"
         style={{ backgroundColor: "#000" }}
@@ -71,20 +79,32 @@ export default function LoginPage() {
         ))}
       </div>
 
-      {/* Right panel - logo + form */}
       <div
         className="md:w-1/2 flex flex-col border-t md:border-t-0 md:border-l"
         style={{ backgroundColor: "#0E1013", borderColor: "#1E2126" }}
       >
         <div className="flex justify-end items-center gap-3 p-6 md:p-8">
-  <Link
-    href="/dashboard"
-    className="text-xs px-3 py-1.5 rounded-full border transition-colors"
-    style={{ borderColor: "#2A2E34", color: "#8FA0B8" }}
-  >
-    Voorraad
-  </Link>
-  <div className="flex rounded-full border overflow-hidden text-xs" style={{ borderColor: "#2A2E34" }}>
+          <Link
+            href="/dashboard"
+            className="text-xs px-3 py-1.5 rounded-full border transition-colors"
+            style={{ borderColor: "#2A2E34", color: "#8FA0B8" }}
+          >
+            Voorraad
+          </Link>
+
+          <button
+            onClick={() => setShowLogin((v) => !v)}
+            className="text-xs px-3 py-1.5 rounded-full border transition-colors"
+            style={{
+              borderColor: showLogin ? "#2E5A94" : "#2A2E34",
+              color: showLogin ? "#F2F3F4" : "#8FA0B8",
+              backgroundColor: showLogin ? "#2E5A94" : "transparent",
+            }}
+          >
+            {t.loginBtn}
+          </button>
+
+          <div className="flex rounded-full border overflow-hidden text-xs" style={{ borderColor: "#2A2E34" }}>
             {(["NL", "EN"] as const).map((l) => (
               <button
                 key={l}
@@ -103,7 +123,6 @@ export default function LoginPage() {
 
         <div className="flex-1 flex items-center justify-center px-8 md:px-16">
           <div className="w-full max-w-sm">
-            {/* logo lockup */}
             <div className="flex flex-col items-center text-center mb-10">
               <svg width="48" height="48" viewBox="0 0 100 100" className="mb-3">
                 <circle cx="50" cy="50" r="30" fill="none" stroke="#3E4750" strokeWidth={2} />
@@ -127,73 +146,84 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <h2 className="text-lg mb-6" style={{ color: "#F2F3F4" }}>
-              {t.loginTitle}
-            </h2>
-
-            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-              <div>
-                <label className="block text-sm mb-2" style={{ color: "#8A929C" }}>
-                  {t.email}
-                </label>
-                <div className="flex items-center gap-2 border-b pb-2" style={{ borderColor: "#2A2E34" }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B7CA8" strokeWidth={2}>
-                    <rect x="2" y="4" width="20" height="16" rx="2" />
-                    <path d="m2 7 10 6 10-6" />
-                  </svg>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-transparent outline-none text-sm"
-                    style={{ color: "#F2F3F4" }}
-                    placeholder="naam@bedrijf.nl"
-                  />
-                </div>
+            {!showLogin ? (
+              <div className="text-center text-sm" style={{ color: "#B7BEC7" }}>
+                <p className="mb-4" style={{ color: "#F2F3F4", fontWeight: 700 }}>
+                  {t.companyHeading}
+                </p>
+                <p>{t.companyText}</p>
               </div>
+            ) : (
+              <>
+                <h2 className="text-lg mb-6" style={{ color: "#F2F3F4" }}>
+                  {t.loginTitle}
+                </h2>
 
-              <div>
-                <label className="block text-sm mb-2" style={{ color: "#8A929C" }}>
-                  {t.password}
-                </label>
-                <div className="flex items-center gap-2 border-b pb-2" style={{ borderColor: "#2A2E34" }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B7CA8" strokeWidth={2}>
-                    <rect x="3" y="11" width="18" height="10" rx="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-transparent outline-none text-sm"
-                    style={{ color: "#F2F3F4" }}
-                    placeholder="••••••••"
-                  />
-                </div>
-              </div>
+                <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+                  <div>
+                    <label className="block text-sm mb-2" style={{ color: "#8A929C" }}>
+                      {t.email}
+                    </label>
+                    <div className="flex items-center gap-2 border-b pb-2" style={{ borderColor: "#2A2E34" }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B7CA8" strokeWidth={2}>
+                        <rect x="2" y="4" width="20" height="16" rx="2" />
+                        <path d="m2 7 10 6 10-6" />
+                      </svg>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full bg-transparent outline-none text-sm"
+                        style={{ color: "#F2F3F4" }}
+                        placeholder="naam@bedrijf.nl"
+                      />
+                    </div>
+                  </div>
 
-              <button
-                type="submit"
-                className="w-full py-3 text-sm transition-colors"
-                style={{ backgroundColor: "#2E5A94", color: "#F2F3F4" }}
-                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#3E6FAE")}
-                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#2E5A94")}
-              >
-                {t.submit}
-              </button>
-            </form>
+                  <div>
+                    <label className="block text-sm mb-2" style={{ color: "#8A929C" }}>
+                      {t.password}
+                    </label>
+                    <div className="flex items-center gap-2 border-b pb-2" style={{ borderColor: "#2A2E34" }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B7CA8" strokeWidth={2}>
+                        <rect x="3" y="11" width="18" height="10" rx="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                      </svg>
+                      <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full bg-transparent outline-none text-sm"
+                        style={{ color: "#F2F3F4" }}
+                        placeholder="********"
+                      />
+                    </div>
+                  </div>
 
-            <p className="mt-6 text-sm" style={{ color: "#7A828C" }}>
-              {t.noAccount}{" "}
-              <a href="#" className="underline" style={{ color: "#F2F3F4" }}>
-                {t.register}
-              </a>
-            </p>
+                  <button
+                    type="submit"
+                    className="w-full py-3 text-sm transition-colors"
+                    style={{ backgroundColor: "#2E5A94", color: "#F2F3F4" }}
+                    onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#3E6FAE")}
+                    onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#2E5A94")}
+                  >
+                    {t.submit}
+                  </button>
+                </form>
+
+                <p className="mt-6 text-sm" style={{ color: "#7A828C" }}>
+                  {t.noAccount}{" "}
+                  <a href="#" className="underline" style={{ color: "#F2F3F4" }}>
+                    {t.register}
+                  </a>
+                </p>
+              </>
+            )}
           </div>
         </div>
 
         <div className="p-6 md:p-8 text-xs" style={{ color: "#4E555E" }}>
-          © Caronix · {t.footer}
+          Caronix - {t.footer}
         </div>
       </div>
     </div>
