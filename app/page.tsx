@@ -62,22 +62,16 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row" style={{ backgroundColor: "#08090B" }}>
-      <div
-        className="md:w-1/2 min-h-[220px] md:min-h-screen grid grid-cols-3 grid-rows-3 gap-px"
+           <div
+        className="md:w-1/2 min-h-[220px] md:min-h-screen relative overflow-hidden"
         style={{ backgroundColor: "#000" }}
       >
-        {Array.from({ length: 9 }).map((_, i) => (
-          <div
-            key={i}
-            className="relative flex items-center justify-center overflow-hidden"
-            style={{ background: tileBg[i % 3] }}
-          >
-            <svg viewBox="0 0 90 60" className="w-2/3 h-2/3 relative">
-              <path d={carBlueprints[i % 3]} fill="none" stroke="#4E6FA0" strokeWidth={1} opacity={0.6} />
-            </svg>
-          </div>
-        ))}
-      </div>
+        <img
+          src="/hero-pand.png"
+          alt="Caronix pand"
+          className="w-full h-full object-cover"
+        />
+      </div>       
 
       <div
         className="md:w-1/2 flex flex-col border-t md:border-t-0 md:border-l"
