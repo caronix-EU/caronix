@@ -14,6 +14,8 @@ export default function LoginPage() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    alert("Knop werkt! Functie wordt aangeroepen.");
+    setLoading(true);
     setError(null);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
