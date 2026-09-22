@@ -10,7 +10,7 @@ type Vehicle = {
   model: string;
   uitvoering: string;
   btw_type: string;
-  registration: number;
+  registration: string; // datum als "YYYY-MM-DD" string vanuit Supabase;
   price: number;
   km: number;
   fuel: string;
@@ -306,8 +306,17 @@ export default function DashboardPage() {
 
                 <div className="flex items-center gap-4 mt-3 text-xs" style={{ color: "#F2F3F4" }}>
                   <span className="flex items-center gap-1">
-                    <CalendarIcon /> {v.registration}
-                  </span>
+                   <span className="flex items-center gap-1">
+  <CalendarIcon />{" "}
+  {v.registration
+    ? new Date(v.registration).toLocaleDateString("nl-NL", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : "-"}
+</span>    
+ 
                   <span>{v.km ? Number(v.km).toLocaleString("nl-NL") + " km" : "-"}</span>
                   <span className="flex items-center gap-1">
                     <PinIcon /> {v.country}

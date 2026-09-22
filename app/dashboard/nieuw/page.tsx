@@ -74,7 +74,7 @@ export default function NieuwVoertuigPage() {
         model,
         uitvoering,
         btw_type: btwType,
-        registration: registration ? Number(registration) : null,
+        registration: registration || null,
         price: price ? Number(price) : null,
         km: km ? Number(km) : null,
         fuel,
@@ -161,9 +161,9 @@ export default function NieuwVoertuigPage() {
               </div>
             </div>
             <div>
-              <label className={labelClass} style={labelStyle}>Bouwjaar</label>
+              <label className={labelClass} style={labelStyle}>Registratiedatum</label>
               <div className={fieldWrap} style={fieldBorder}>
-                <input type="number" value={registration} onChange={(e) => setRegistration(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="2022" />
+                <input type="date" value={registration} onChange={(e) => setRegistration(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} />
               </div>
             </div>
             <div>

@@ -44,7 +44,9 @@ export default function BewerkVoertuigPage() {
       setModel(data.model || "");
       setUitvoering(data.uitvoering || "");
       setBtwType(data.btw_type === "Excl. BTW" ? "Excl. BTW" : "Marge");
-      setRegistration(data.registration ? String(data.registration) : "");
+      // Supabase geeft een date-kolom terug als "JJJJ-MM-DD" string,
+      // wat exact het formaat is dat <input type="date"> verwacht.
+      setRegistration(data.registration ? String(data.registration).slice(0, 10) : "");
       setPrice(data.price ? String(data.price) : "");
       setKm(data.km ? String(data.km) : "");
       setFuel(data.fuel || "");
@@ -104,7 +106,7 @@ export default function BewerkVoertuigPage() {
           model,
           uitvoering,
           btw_type: btwType,
-          registration: registration ? Number(registration) : null,
+          registration: registration || null,
           price: price ? Number(price) : null,
           km: km ? Number(km) : null,
           fuel,
@@ -207,9 +209,9 @@ export default function BewerkVoertuigPage() {
               </div>
             </div>
             <div>
-              <label className={labelClass} style={labelStyle}>Bouwjaar</label>
+              <label className={labelClass} style={labelStyle}>Registratiedatum</label>
               <div className={fieldWrap} style={fieldBorder}>
-                <input type="number" value={registration} onChange={(e) => setRegistration(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} />
+                <input type="date" value={registration} onChange={(e) => setRegistration(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} />
               </div>
             </div>
             <div>
