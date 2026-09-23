@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
@@ -10,7 +10,7 @@ type Vehicle = {
   model: string;
   uitvoering: string;
   btw_type: string;
-  registration: string; // datum als "YYYY-MM-DD" string vanuit Supabase;
+  registration: string; // datum als "YYYY-MM-DD" string vanuit Supabase
   price: number;
   km: number;
   fuel: string;
@@ -170,15 +170,15 @@ export default function DashboardPage() {
             ))}
           </div>
 
- {!authLoading && isLoggedIn && (
-  <button
-    onClick={handleLogout}
-    className="px-3 py-1.5 rounded-full text-xs border"
-    style={{ borderColor: "#2A2E34", color: "#D98787" }}
-  >
-    Uitloggen
-  </button>
-)}           
+          {!authLoading && isLoggedIn && (
+            <button
+              onClick={handleLogout}
+              className="px-3 py-1.5 rounded-full text-xs border"
+              style={{ borderColor: "#2A2E34", color: "#D98787" }}
+            >
+              Uitloggen
+            </button>
+          )}
 
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center text-xs"
@@ -306,17 +306,15 @@ export default function DashboardPage() {
 
                 <div className="flex items-center gap-4 mt-3 text-xs" style={{ color: "#F2F3F4" }}>
                   <span className="flex items-center gap-1">
-                   <span className="flex items-center gap-1">
-  <CalendarIcon />{" "}
-  {v.registration
-    ? new Date(v.registration).toLocaleDateString("nl-NL", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      })
-    : "-"}
-</span>    
- 
+                    <CalendarIcon />{" "}
+                    {v.registration
+                      ? new Date(v.registration).toLocaleDateString("nl-NL", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })
+                      : "-"}
+                  </span>
                   <span>{v.km ? Number(v.km).toLocaleString("nl-NL") + " km" : "-"}</span>
                   <span className="flex items-center gap-1">
                     <PinIcon /> {v.country}
