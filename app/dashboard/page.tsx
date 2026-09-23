@@ -43,6 +43,20 @@ function ChevronIcon() {
     </svg>
   );
 }
+function ArrowLeftIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  );
+}
+function ArrowRightIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+      <path d="m9 18 6-6-6-6" />
+    </svg>
+  );
+}
 
 export default function DashboardPage() {
   const [lang, setLang] = useState<"NL" | "EN">("NL");
@@ -54,6 +68,23 @@ export default function DashboardPage() {
   const [session, setSession] = useState<Session | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const isLoggedIn = !!session;
+
+  // Houdt bij welke foto-index (0, 1, 2...) elk voertuig op dit moment toont
+  const [photoIndex, setPhotoIndex] = useState<Record<number, number>>({});
+
+  function nextPhoto(vehicleId: number, total: number) {
+    setPhotoIndex((prev) => {
+      const current = prev[vehicleId] || 0;
+      return { ...prev, [vehicleId]: (current + 1) % total };
+    });
+  }
+
+  function prevPhoto(vehicleId: number, total: number) {
+    setPhotoIndex((prev) => {
+      const current = prev[vehicleId] || 0;
+      return { ...prev, [vehicleId]: (current - 1 + total) % total };
+    });
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -256,102 +287,148 @@ export default function DashboardPage() {
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {vehicles.map((v) => (
-            <div
-              key={v.id}
-              className="rounded-md overflow-hidden border"
-              style={{ backgroundColor: "#0E1013", borderColor: "#1E2126" }}
-            >
+          {vehicles.map((v) => {
+            const photos = v.photo_urls || [];
+            const currentIndex = photoIndex[v.id] || 0;
+            const hasMultiplePhotos = photos.length > 1;
+
+            return (
               <div
-                className="h-56 flex items-center justify-center overflow-hidden"
-                style={{ background: "linear-gradient(135deg,#12151A,#1C2128)" }}
+                key={v.id}
+                className="rounded-md overflow-hidden border"
+                style={{ backgroundColor: "#0E1013", borderColor: "#1E2126" }}
               >
-                {v.photo_urls && v.photo_urls.length > 0 ? (
-                  <img
-                    src={v.photo_urls[0]}
-                    alt={v.brand + " " + v.model}
-                    className="w-full h-full object-contain"
-                  />
-                ) : (
-                  <span className="text-xs" style={{ color: "#4E555E" }}>
-                    Geen foto
-                  </span>
-                )}
-              </div>
+                <div
+                  className="relative h-56 flex items-center justify-center overflow-hidden"
+                  style={{ background: "linear-gradient(135deg,#12151A,#1C2128)" }}
+                >
+                  {photos.length > 0 ? (
+                    <img
+                      src={photos[currentIndex]}
+                      alt={v.brand + " " + v.model}
+                      className="w-full h-full object-contain"
+                    />
+                  ) : (
+                    <span className="text-xs" style={{ color: "#4E555E" }}>
+                      Geen foto
+                    </span>
+                  )}
 
-              <div className="p-4">
-                <div className="flex items-start justify-between mb-1">
-                  <div>
-                    <div className="text-sm" style={{ color: "#F2F3F4" }}>
-                      {v.brand}
-                    </div>
-                    <div className="text-base" style={{ color: "#F2F3F4" }}>
-                      {v.model}
-                    </div>
-                    {v.uitvoering && (
-                      <div className="text-xs" style={{ color: "#F2F3F4" }}>
-                        {v.uitvoering}
+                  {hasMultiplePhotos && (
+                    <>
+                      <button
+                        onClick={() => prevPhoto(v.id, photos.length)}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: "rgba(8,9,11,0.7)", color: "#F2F3F4" }}
+                        aria-label="Vorige foto"
+                      >
+                        <ArrowLeftIcon />
+                      </button>
+                      <button
+                        onClick={() => nextPhoto(v.id, photos.length)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: "rgba(8,9,11,0.7)", color: "#F2F3F4" }}
+                        aria-label="Volgende foto"
+                      >
+                        <ArrowRightIcon />
+                      </button>
+
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+                        {photos.map((_, i) => (
+                          <span
+                            key={i}
+                            className="w-1.5 h-1.5 rounded-full"
+                            style={{
+                              backgroundColor: i === currentIndex ? "#7FA8D9" : "rgba(242,243,244,0.35)",
+                            }}
+                          />
+                        ))}
                       </div>
-                    )}
-                  </div>
-                  <div className="text-base" style={{ color: "#7FA8D9", fontWeight: 600 }}>
-                    {v.price ? "EUR " + Number(v.price).toLocaleString("nl-NL") : "-"}
-                    {v.btw_type && (
-                      <div className="text-[10px] font-normal text-right mt-0.5" style={{ color: "#F2F3F4" }}>
-                        {v.btw_type}
+
+                      <div
+                        className="absolute top-2 right-2 text-[10px] px-1.5 py-0.5 rounded-full"
+                        style={{ backgroundColor: "rgba(8,9,11,0.7)", color: "#F2F3F4" }}
+                      >
+                        {currentIndex + 1}/{photos.length}
                       </div>
-                    )}
-                  </div>
+                    </>
+                  )}
                 </div>
 
-                <div className="flex items-center gap-4 mt-3 text-xs" style={{ color: "#F2F3F4" }}>
-                  <span className="flex items-center gap-1">
-                    <CalendarIcon />{" "}
-                    {v.registration
-                      ? new Date(v.registration).toLocaleDateString("nl-NL", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        })
-                      : "-"}
-                  </span>
-                  <span>{v.km ? Number(v.km).toLocaleString("nl-NL") + " km" : "-"}</span>
-                  <span className="flex items-center gap-1">
-                    <PinIcon /> {v.country}
-                  </span>
-                </div>
-                <div className="flex items-center gap-4 mt-2 text-xs" style={{ color: "#F2F3F4" }}>
-                  <span>{v.fuel}</span>
-                  <span>{v.color}</span>
-                  <span>{v.transmission}</span>
-                </div>
-
-                {isLoggedIn && (
-                  <div className="flex gap-2 mt-4">
-                    <a
-                      href={"/dashboard/bewerken/" + v.id}
-                      className="flex-1 py-2 text-xs rounded-sm text-center"
-                      style={{ backgroundColor: "#2E5A94", color: "#F2F3F4" }}
-                    >
-                      Bewerken
-                    </a>
-                    <button
-                      onClick={() => handleDelete(v.id)}
-                      disabled={deletingId === v.id}
-                      className="flex-1 py-2 text-xs rounded-sm border"
-                      style={{
-                        borderColor: "#5A2E2E",
-                        color: deletingId === v.id ? "#6E7680" : "#D98787",
-                        backgroundColor: "transparent",
-                      }}
-                    >
-                      {deletingId === v.id ? "Bezig..." : "Verwijderen"}
-                    </button>
+                <div className="p-4">
+                  <div className="flex items-start justify-between mb-1">
+                    <div>
+                      <div className="text-sm" style={{ color: "#F2F3F4" }}>
+                        {v.brand}
+                      </div>
+                      <div className="text-base" style={{ color: "#F2F3F4" }}>
+                        {v.model}
+                      </div>
+                      {v.uitvoering && (
+                        <div className="text-xs" style={{ color: "#F2F3F4" }}>
+                          {v.uitvoering}
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-base" style={{ color: "#7FA8D9", fontWeight: 600 }}>
+                      {v.price ? "EUR " + Number(v.price).toLocaleString("nl-NL") : "-"}
+                      {v.btw_type && (
+                        <div className="text-[10px] font-normal text-right mt-0.5" style={{ color: "#F2F3F4" }}>
+                          {v.btw_type}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                )}
+
+                  <div className="flex items-center gap-4 mt-3 text-xs" style={{ color: "#F2F3F4" }}>
+                    <span className="flex items-center gap-1">
+                      <CalendarIcon />{" "}
+                      {v.registration
+                        ? new Date(v.registration).toLocaleDateString("nl-NL", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                          })
+                        : "-"}
+                    </span>
+                    <span>{v.km ? Number(v.km).toLocaleString("nl-NL") + " km" : "-"}</span>
+                    <span className="flex items-center gap-1">
+                      <PinIcon /> {v.country}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4 mt-2 text-xs" style={{ color: "#F2F3F4" }}>
+                    <span>{v.fuel}</span>
+                    <span>{v.color}</span>
+                    <span>{v.transmission}</span>
+                  </div>
+
+                  {isLoggedIn && (
+                    <div className="flex gap-2 mt-4">
+                      <a
+                        href={"/dashboard/bewerken/" + v.id}
+                        className="flex-1 py-2 text-xs rounded-sm text-center"
+                        style={{ backgroundColor: "#2E5A94", color: "#F2F3F4" }}
+                      >
+                        Bewerken
+                      </a>
+                      <button
+                        onClick={() => handleDelete(v.id)}
+                        disabled={deletingId === v.id}
+                        className="flex-1 py-2 text-xs rounded-sm border"
+                        style={{
+                          borderColor: "#5A2E2E",
+                          color: deletingId === v.id ? "#6E7680" : "#D98787",
+                          backgroundColor: "transparent",
+                        }}
+                      >
+                        {deletingId === v.id ? "Bezig..." : "Verwijderen"}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
