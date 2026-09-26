@@ -76,6 +76,21 @@ function uniqueValues(vehicles: Vehicle[], key: keyof Vehicle): string[] {
   return Array.from(set).sort((a, b) => a.localeCompare(b));
 }
 
+// Gangbare bereiken zoals bij AutoScout24 / Gaspedaal
+const currentYear = new Date().getFullYear();
+const YEAR_OPTIONS = Array.from({ length: currentYear - 2014 }, (_, i) => currentYear - i); // huidig jaar t/m 2015, aflopend
+
+const PRICE_OPTIONS = [2500, 5000, 7500, 10000, 15000, 20000, 25000, 30000, 40000, 50000, 75000, 100000];
+
+const KM_OPTIONS = [10000, 25000, 50000, 75000, 100000, 125000, 150000, 200000];
+
+function formatEuro(n: number) {
+  return "€ " + n.toLocaleString("nl-NL");
+}
+function formatKm(n: number) {
+  return n.toLocaleString("nl-NL") + " km";
+}
+
 export default function DashboardPage() {
   const [lang, setLang] = useState<"NL" | "EN">("NL");
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -526,23 +541,33 @@ export default function DashboardPage() {
             style={{ borderColor: "#2A2E34", color: "#8A929C" }}
           >
             <span style={{ color: "#8A929C" }}>Bouwjaar</span>
-            <input
-              type="number"
+            <select
               value={yearFrom}
               onChange={(e) => setYearFrom(e.target.value)}
-              placeholder="Van"
-              className="bg-transparent outline-none w-16"
-              style={{ color: "#F2F3F4" }}
-            />
+              className="bg-transparent outline-none cursor-pointer"
+              style={{ color: yearFrom ? "#F2F3F4" : "#8A929C" }}
+            >
+              <option value="" style={{ color: "#000" }}>Van</option>
+              {[...YEAR_OPTIONS].reverse().map((y) => (
+                <option key={y} value={y} style={{ color: "#000" }}>
+                  {y}
+                </option>
+              ))}
+            </select>
             <span>-</span>
-            <input
-              type="number"
+            <select
               value={yearTo}
               onChange={(e) => setYearTo(e.target.value)}
-              placeholder="Tot"
-              className="bg-transparent outline-none w-16"
-              style={{ color: "#F2F3F4" }}
-            />
+              className="bg-transparent outline-none cursor-pointer"
+              style={{ color: yearTo ? "#F2F3F4" : "#8A929C" }}
+            >
+              <option value="" style={{ color: "#000" }}>Tot</option>
+              {YEAR_OPTIONS.map((y) => (
+                <option key={y} value={y} style={{ color: "#000" }}>
+                  {y}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div
@@ -550,23 +575,33 @@ export default function DashboardPage() {
             style={{ borderColor: "#2A2E34", color: "#8A929C" }}
           >
             <span style={{ color: "#8A929C" }}>Prijs</span>
-            <input
-              type="number"
+            <select
               value={priceFrom}
               onChange={(e) => setPriceFrom(e.target.value)}
-              placeholder="Van (EUR)"
-              className="bg-transparent outline-none w-20"
-              style={{ color: "#F2F3F4" }}
-            />
+              className="bg-transparent outline-none cursor-pointer"
+              style={{ color: priceFrom ? "#F2F3F4" : "#8A929C" }}
+            >
+              <option value="" style={{ color: "#000" }}>Van</option>
+              {PRICE_OPTIONS.map((p) => (
+                <option key={p} value={p} style={{ color: "#000" }}>
+                  {formatEuro(p)}
+                </option>
+              ))}
+            </select>
             <span>-</span>
-            <input
-              type="number"
+            <select
               value={priceTo}
               onChange={(e) => setPriceTo(e.target.value)}
-              placeholder="Tot (EUR)"
-              className="bg-transparent outline-none w-20"
-              style={{ color: "#F2F3F4" }}
-            />
+              className="bg-transparent outline-none cursor-pointer"
+              style={{ color: priceTo ? "#F2F3F4" : "#8A929C" }}
+            >
+              <option value="" style={{ color: "#000" }}>Tot</option>
+              {PRICE_OPTIONS.map((p) => (
+                <option key={p} value={p} style={{ color: "#000" }}>
+                  {formatEuro(p)}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div
@@ -574,23 +609,33 @@ export default function DashboardPage() {
             style={{ borderColor: "#2A2E34", color: "#8A929C" }}
           >
             <span style={{ color: "#8A929C" }}>Tellerstand</span>
-            <input
-              type="number"
+            <select
               value={kmFrom}
               onChange={(e) => setKmFrom(e.target.value)}
-              placeholder="Van (km)"
-              className="bg-transparent outline-none w-20"
-              style={{ color: "#F2F3F4" }}
-            />
+              className="bg-transparent outline-none cursor-pointer"
+              style={{ color: kmFrom ? "#F2F3F4" : "#8A929C" }}
+            >
+              <option value="" style={{ color: "#000" }}>Van</option>
+              {KM_OPTIONS.map((k) => (
+                <option key={k} value={k} style={{ color: "#000" }}>
+                  {formatKm(k)}
+                </option>
+              ))}
+            </select>
             <span>-</span>
-            <input
-              type="number"
+            <select
               value={kmTo}
               onChange={(e) => setKmTo(e.target.value)}
-              placeholder="Tot (km)"
-              className="bg-transparent outline-none w-20"
-              style={{ color: "#F2F3F4" }}
-            />
+              className="bg-transparent outline-none cursor-pointer"
+              style={{ color: kmTo ? "#F2F3F4" : "#8A929C" }}
+            >
+              <option value="" style={{ color: "#000" }}>Tot</option>
+              {KM_OPTIONS.map((k) => (
+                <option key={k} value={k} style={{ color: "#000" }}>
+                  {formatKm(k)}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
