@@ -90,6 +90,24 @@ export default function DashboardPage() {
   // Houdt bij welke foto-index (0, 1, 2...) elk voertuig op dit moment toont
   const [photoIndex, setPhotoIndex] = useState<Record<number, number>>({});
 
+  // Uitvergrote foto (lightbox). null = gesloten.
+  const [enlargedPhotos, setEnlargedPhotos] = useState<string[] | null>(null);
+  const [enlargedIndex, setEnlargedIndex] = useState(0);
+
+  function closeLightbox() {
+    setEnlargedPhotos(null);
+  }
+
+  function nextEnlargedPhoto() {
+    if (!enlargedPhotos) return;
+    setEnlargedIndex((prev) => (prev + 1) % enlargedPhotos.length);
+  }
+
+  function prevEnlargedPhoto() {
+    if (!enlargedPhotos) return;
+    setEnlargedIndex((prev) => (prev - 1 + enlargedPhotos.length) % enlargedPhotos.length);
+  }
+
   // Filterstatus: lege string = "alle"
   const [filterBrand, setFilterBrand] = useState("");
   const [filterModel, setFilterModel] = useState("");
@@ -607,7 +625,11 @@ export default function DashboardPage() {
                     <img
                       src={photos[currentIndex]}
                       alt={v.brand + " " + v.model}
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-contain cursor-zoom-in"
+                      onClick={() => {
+                        setEnlargedPhotos(photos);
+                        setEnlargedIndex(currentIndex);
+                      }}
                     />
                   ) : (
                     <span className="text-xs" style={{ color: "#4E555E" }}>
@@ -732,6 +754,69 @@ export default function DashboardPage() {
           })}
         </div>
       </div>
+
+      {/* Lightbox: uitvergrote foto met navigatie */}
+      {enlargedPhotos && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-6"
+          style={{ backgroundColor: "rgba(8,9,11,0.92)" }}
+          onClick={closeLightbox}
+        >
+          <button
+            onClick={closeLightbox}
+            className="absolute top-5 right-5 w-10 h-10 rounded-full flex items-center justify-center text-2xl"
+            style={{ backgroundColor: "rgba(242,243,244,0.1)", color: "#F2F3F4" }}
+            aria-label="Sluiten"
+          >
+            ×
+          </button>
+
+          {enlargedPhotos.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                prevEnlargedPhoto();
+              }}
+              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: "rgba(242,243,244,0.1)", color: "#F2F3F4" }}
+              aria-label="Vorige foto"
+            >
+              <ArrowLeftIcon />
+            </button>
+          )}
+
+          <img
+            src={enlargedPhotos[enlargedIndex]}
+            alt="Uitvergrote foto"
+            className="max-w-full max-h-full object-contain rounded-md"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {enlargedPhotos.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                nextEnlargedPhoto();
+              }}
+              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: "rgba(242,243,244,0.1)", color: "#F2F3F4" }}
+              aria-label="Volgende foto"
+            >
+              <ArrowRightIcon />
+            </button>
+          )}
+
+          {enlargedPhotos.length > 1 && (
+            <div
+              className="absolute bottom-6 left-1/2 -translate-x-1/2 text-xs px-3 py-1.5 rounded-full"
+              style={{ backgroundColor: "rgba(242,243,244,0.1)", color: "#F2F3F4" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {enlargedIndex + 1} / {enlargedPhotos.length}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
