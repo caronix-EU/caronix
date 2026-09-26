@@ -57,6 +57,14 @@ function ArrowRightIcon() {
     </svg>
   );
 }
+function HomeIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+      <path d="m3 10 9-7 9 7" />
+      <path d="M5 9v11a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-5h4v5a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1V9" />
+    </svg>
+  );
+}
 
 // Haalt unieke, niet-lege waarden op uit een lijst voertuigen voor een gegeven veld
 function uniqueValues(vehicles: Vehicle[], key: keyof Vehicle): string[] {
@@ -296,6 +304,15 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-4">
+          <a
+            href="/"
+            className="w-8 h-8 rounded-full flex items-center justify-center border"
+            style={{ borderColor: "#2A2E34", color: "#8A929C" }}
+            aria-label="Naar homepagina"
+          >
+            <HomeIcon />
+          </a>
+
           <div className="flex rounded-full border overflow-hidden text-xs" style={{ borderColor: "#2A2E34" }}>
             {(["NL", "EN"] as const).map((l) => (
               <button
