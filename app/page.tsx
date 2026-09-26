@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -84,6 +84,14 @@ export default function LoginPage() {
             style={{ borderColor: "#2A2E34", color: "#8FA0B8" }}
           >
             Voorraad
+          </Link>
+
+          <Link
+            href="/contact"
+            className="text-xs px-3 py-1.5 rounded-full border transition-colors"
+            style={{ borderColor: "#2A2E34", color: "#8FA0B8" }}
+          >
+            Contact
           </Link>
 
           <button
