@@ -361,7 +361,7 @@ export default function DashboardPage() {
             className="w-8 h-8 rounded-full flex items-center justify-center text-xs"
             style={{ backgroundColor: "#1C2128", color: "#8FA0B8" }}
           >
-            JD
+            MK
           </div>
         </div>
       </div>
