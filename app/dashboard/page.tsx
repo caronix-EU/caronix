@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import type { Session } from "@supabase/supabase-js";
 
@@ -58,6 +58,16 @@ function ArrowRightIcon() {
   );
 }
 
+// Haalt unieke, niet-lege waarden op uit een lijst voertuigen voor een gegeven veld
+function uniqueValues(vehicles: Vehicle[], key: keyof Vehicle): string[] {
+  const set = new Set<string>();
+  vehicles.forEach((v) => {
+    const val = v[key];
+    if (val && typeof val === "string" && val.trim() !== "") set.add(val);
+  });
+  return Array.from(set).sort((a, b) => a.localeCompare(b));
+}
+
 export default function DashboardPage() {
   const [lang, setLang] = useState<"NL" | "EN">("NL");
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -71,6 +81,21 @@ export default function DashboardPage() {
 
   // Houdt bij welke foto-index (0, 1, 2...) elk voertuig op dit moment toont
   const [photoIndex, setPhotoIndex] = useState<Record<number, number>>({});
+
+  // Filterstatus: lege string = "alle"
+  const [filterBrand, setFilterBrand] = useState("");
+  const [filterModel, setFilterModel] = useState("");
+  const [filterFuel, setFilterFuel] = useState("");
+  const [filterColor, setFilterColor] = useState("");
+  const [filterTransmission, setFilterTransmission] = useState("");
+  const [filterCountry, setFilterCountry] = useState("");
+
+  const [yearFrom, setYearFrom] = useState("");
+  const [yearTo, setYearTo] = useState("");
+  const [priceFrom, setPriceFrom] = useState("");
+  const [priceTo, setPriceTo] = useState("");
+  const [kmFrom, setKmFrom] = useState("");
+  const [kmTo, setKmTo] = useState("");
 
   function nextPhoto(vehicleId: number, total: number) {
     setPhotoIndex((prev) => {
@@ -138,6 +163,83 @@ export default function DashboardPage() {
     setDeletingId(null);
   }
 
+  // Dropdown-opties, automatisch afgeleid uit de huidige voertuigen
+  const brandOptions = useMemo(() => uniqueValues(vehicles, "brand"), [vehicles]);
+  const modelOptions = useMemo(() => uniqueValues(vehicles, "model"), [vehicles]);
+  const fuelOptions = useMemo(() => uniqueValues(vehicles, "fuel"), [vehicles]);
+  const colorOptions = useMemo(() => uniqueValues(vehicles, "color"), [vehicles]);
+  const transmissionOptions = useMemo(() => uniqueValues(vehicles, "transmission"), [vehicles]);
+  const countryOptions = useMemo(() => uniqueValues(vehicles, "country"), [vehicles]);
+
+  const filteredVehicles = useMemo(() => {
+    return vehicles.filter((v) => {
+      if (filterBrand && v.brand !== filterBrand) return false;
+      if (filterModel && v.model !== filterModel) return false;
+      if (filterFuel && v.fuel !== filterFuel) return false;
+      if (filterColor && v.color !== filterColor) return false;
+      if (filterTransmission && v.transmission !== filterTransmission) return false;
+      if (filterCountry && v.country !== filterCountry) return false;
+
+      if (yearFrom || yearTo) {
+        const year = v.registration ? new Date(v.registration).getFullYear() : null;
+        if (year === null) return false;
+        if (yearFrom && year < Number(yearFrom)) return false;
+        if (yearTo && year > Number(yearTo)) return false;
+      }
+
+      if (priceFrom && (!v.price || v.price < Number(priceFrom))) return false;
+      if (priceTo && (!v.price || v.price > Number(priceTo))) return false;
+
+      if (kmFrom && (v.km === null || v.km === undefined || v.km < Number(kmFrom))) return false;
+      if (kmTo && (v.km === null || v.km === undefined || v.km > Number(kmTo))) return false;
+
+      return true;
+    });
+  }, [
+    vehicles,
+    filterBrand,
+    filterModel,
+    filterFuel,
+    filterColor,
+    filterTransmission,
+    filterCountry,
+    yearFrom,
+    yearTo,
+    priceFrom,
+    priceTo,
+    kmFrom,
+    kmTo,
+  ]);
+
+  function resetFilters() {
+    setFilterBrand("");
+    setFilterModel("");
+    setFilterFuel("");
+    setFilterColor("");
+    setFilterTransmission("");
+    setFilterCountry("");
+    setYearFrom("");
+    setYearTo("");
+    setPriceFrom("");
+    setPriceTo("");
+    setKmFrom("");
+    setKmTo("");
+  }
+
+  const filtersActive =
+    filterBrand ||
+    filterModel ||
+    filterFuel ||
+    filterColor ||
+    filterTransmission ||
+    filterCountry ||
+    yearFrom ||
+    yearTo ||
+    priceFrom ||
+    priceTo ||
+    kmFrom ||
+    kmTo;
+
   const chrome: React.CSSProperties = {
     backgroundImage:
       "linear-gradient(180deg, #F2F3F4 0%, #C7CCD1 35%, #8C949C 55%, #DADFE3 75%, #A9AFB6 100%)",
@@ -146,6 +248,15 @@ export default function DashboardPage() {
     color: "transparent",
     fontFamily: "'Space Grotesk', sans-serif",
     fontWeight: 700,
+  };
+
+  // Stijl voor de dropdown-filterknoppen (native <select>, visueel als pill-knop)
+  const selectStyle: React.CSSProperties = {
+    borderColor: "#2A2E34",
+    color: "#8A929C",
+    backgroundColor: "transparent",
+    appearance: "none",
+    WebkitAppearance: "none",
   };
 
   return (
@@ -231,7 +342,9 @@ export default function DashboardPage() {
               Voertuigaanbod
             </h1>
             <p className="text-sm" style={{ color: "#7A828C" }}>
-              {loading ? "Laden..." : `${vehicles.length} beschikbare occasions binnen de EU`}
+              {loading
+                ? "Laden..."
+                : `${filteredVehicles.length} van ${vehicles.length} beschikbare occasions binnen de EU`}
             </p>
           </div>
 
@@ -247,35 +360,203 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex flex-nowrap gap-3 mb-3 overflow-x-auto pb-1">
-          {["Merk", "Model", "Brandstof", "Kleur", "Transmissie", "Land van herkomst"].map((f) => (
-            <button
-              key={f}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs border shrink-0"
-              style={{ borderColor: "#2A2E34", color: "#8A929C" }}
+          <div className="relative shrink-0">
+            <select
+              value={filterBrand}
+              onChange={(e) => setFilterBrand(e.target.value)}
+              className="px-4 py-2 pr-8 rounded-full text-xs border shrink-0 cursor-pointer"
+              style={selectStyle}
             >
-              {f}
+              <option value="">Merk</option>
+              {brandOptions.map((o) => (
+                <option key={o} value={o}>
+                  {o}
+                </option>
+              ))}
+            </select>
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "#8A929C" }}>
               <ChevronIcon />
+            </span>
+          </div>
+
+          <div className="relative shrink-0">
+            <select
+              value={filterModel}
+              onChange={(e) => setFilterModel(e.target.value)}
+              className="px-4 py-2 pr-8 rounded-full text-xs border shrink-0 cursor-pointer"
+              style={selectStyle}
+            >
+              <option value="">Model</option>
+              {modelOptions.map((o) => (
+                <option key={o} value={o}>
+                  {o}
+                </option>
+              ))}
+            </select>
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "#8A929C" }}>
+              <ChevronIcon />
+            </span>
+          </div>
+
+          <div className="relative shrink-0">
+            <select
+              value={filterFuel}
+              onChange={(e) => setFilterFuel(e.target.value)}
+              className="px-4 py-2 pr-8 rounded-full text-xs border shrink-0 cursor-pointer"
+              style={selectStyle}
+            >
+              <option value="">Brandstof</option>
+              {fuelOptions.map((o) => (
+                <option key={o} value={o}>
+                  {o}
+                </option>
+              ))}
+            </select>
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "#8A929C" }}>
+              <ChevronIcon />
+            </span>
+          </div>
+
+          <div className="relative shrink-0">
+            <select
+              value={filterColor}
+              onChange={(e) => setFilterColor(e.target.value)}
+              className="px-4 py-2 pr-8 rounded-full text-xs border shrink-0 cursor-pointer"
+              style={selectStyle}
+            >
+              <option value="">Kleur</option>
+              {colorOptions.map((o) => (
+                <option key={o} value={o}>
+                  {o}
+                </option>
+              ))}
+            </select>
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "#8A929C" }}>
+              <ChevronIcon />
+            </span>
+          </div>
+
+          <div className="relative shrink-0">
+            <select
+              value={filterTransmission}
+              onChange={(e) => setFilterTransmission(e.target.value)}
+              className="px-4 py-2 pr-8 rounded-full text-xs border shrink-0 cursor-pointer"
+              style={selectStyle}
+            >
+              <option value="">Transmissie</option>
+              {transmissionOptions.map((o) => (
+                <option key={o} value={o}>
+                  {o}
+                </option>
+              ))}
+            </select>
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "#8A929C" }}>
+              <ChevronIcon />
+            </span>
+          </div>
+
+          <div className="relative shrink-0">
+            <select
+              value={filterCountry}
+              onChange={(e) => setFilterCountry(e.target.value)}
+              className="px-4 py-2 pr-8 rounded-full text-xs border shrink-0 cursor-pointer"
+              style={selectStyle}
+            >
+              <option value="">Land van herkomst</option>
+              {countryOptions.map((o) => (
+                <option key={o} value={o}>
+                  {o}
+                </option>
+              ))}
+            </select>
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "#8A929C" }}>
+              <ChevronIcon />
+            </span>
+          </div>
+
+          {filtersActive && (
+            <button
+              onClick={resetFilters}
+              className="px-4 py-2 rounded-full text-xs border shrink-0"
+              style={{ borderColor: "#5A2E2E", color: "#D98787" }}
+            >
+              Filters wissen
             </button>
-          ))}
+          )}
         </div>
 
         <div className="flex flex-nowrap gap-3 mb-8 overflow-x-auto pb-1">
-          {[
-            { label: "Bouwjaar", from: "Van", to: "Tot" },
-            { label: "Prijs", from: "Van (EUR)", to: "Tot (EUR)" },
-            { label: "Tellerstand", from: "Van (km)", to: "Tot (km)" },
-          ].map((f) => (
-            <div
-              key={f.label}
-              className="flex items-center gap-2 px-4 py-2 rounded-full text-xs border shrink-0"
-              style={{ borderColor: "#2A2E34", color: "#8A929C" }}
-            >
-              <span style={{ color: "#8A929C" }}>{f.label}</span>
-              <input placeholder={f.from} className="bg-transparent outline-none w-16" style={{ color: "#F2F3F4" }} />
-              <span>-</span>
-              <input placeholder={f.to} className="bg-transparent outline-none w-16" style={{ color: "#F2F3F4" }} />
-            </div>
-          ))}
+          <div
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-xs border shrink-0"
+            style={{ borderColor: "#2A2E34", color: "#8A929C" }}
+          >
+            <span style={{ color: "#8A929C" }}>Bouwjaar</span>
+            <input
+              type="number"
+              value={yearFrom}
+              onChange={(e) => setYearFrom(e.target.value)}
+              placeholder="Van"
+              className="bg-transparent outline-none w-16"
+              style={{ color: "#F2F3F4" }}
+            />
+            <span>-</span>
+            <input
+              type="number"
+              value={yearTo}
+              onChange={(e) => setYearTo(e.target.value)}
+              placeholder="Tot"
+              className="bg-transparent outline-none w-16"
+              style={{ color: "#F2F3F4" }}
+            />
+          </div>
+
+          <div
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-xs border shrink-0"
+            style={{ borderColor: "#2A2E34", color: "#8A929C" }}
+          >
+            <span style={{ color: "#8A929C" }}>Prijs</span>
+            <input
+              type="number"
+              value={priceFrom}
+              onChange={(e) => setPriceFrom(e.target.value)}
+              placeholder="Van (EUR)"
+              className="bg-transparent outline-none w-20"
+              style={{ color: "#F2F3F4" }}
+            />
+            <span>-</span>
+            <input
+              type="number"
+              value={priceTo}
+              onChange={(e) => setPriceTo(e.target.value)}
+              placeholder="Tot (EUR)"
+              className="bg-transparent outline-none w-20"
+              style={{ color: "#F2F3F4" }}
+            />
+          </div>
+
+          <div
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-xs border shrink-0"
+            style={{ borderColor: "#2A2E34", color: "#8A929C" }}
+          >
+            <span style={{ color: "#8A929C" }}>Tellerstand</span>
+            <input
+              type="number"
+              value={kmFrom}
+              onChange={(e) => setKmFrom(e.target.value)}
+              placeholder="Van (km)"
+              className="bg-transparent outline-none w-20"
+              style={{ color: "#F2F3F4" }}
+            />
+            <span>-</span>
+            <input
+              type="number"
+              value={kmTo}
+              onChange={(e) => setKmTo(e.target.value)}
+              placeholder="Tot (km)"
+              className="bg-transparent outline-none w-20"
+              style={{ color: "#F2F3F4" }}
+            />
+          </div>
         </div>
 
         {loading && <p style={{ color: "#7A828C" }}>Voertuigen laden...</p>}
@@ -285,9 +566,12 @@ export default function DashboardPage() {
             Nog geen voertuigen toegevoegd. Klik op &quot;+ Voertuig toevoegen&quot; om te beginnen.
           </p>
         )}
+        {!loading && !error && vehicles.length > 0 && filteredVehicles.length === 0 && (
+          <p style={{ color: "#7A828C" }}>Geen voertuigen gevonden die aan deze filters voldoen.</p>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {vehicles.map((v) => {
+          {filteredVehicles.map((v) => {
             const photos = v.photo_urls || [];
             const currentIndex = photoIndex[v.id] || 0;
             const hasMultiplePhotos = photos.length > 1;
