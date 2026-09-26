@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { supabase } from "../../lib/supabaseClient";
 import type { Session } from "@supabase/supabase-js";
 
@@ -725,7 +726,7 @@ export default function DashboardPage() {
 
                 <div className="p-4">
                   <div className="flex items-start justify-between mb-1">
-                    <div>
+                    <Link href={"/dashboard/voertuig/" + v.id} className="block">
                       <div className="text-sm" style={{ color: "#F2F3F4" }}>
                         {v.brand}
                       </div>
@@ -737,7 +738,7 @@ export default function DashboardPage() {
                           {v.uitvoering}
                         </div>
                       )}
-                    </div>
+                    </Link>
                     <div className="text-base" style={{ color: "#7FA8D9", fontWeight: 600 }}>
                       {v.price ? "EUR " + Number(v.price).toLocaleString("nl-NL") : "-"}
                       {v.btw_type && (
