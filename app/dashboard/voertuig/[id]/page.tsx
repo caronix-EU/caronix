@@ -190,6 +190,8 @@ export default function VoertuigDetailPage() {
   }
 
   async function handleDownloadPdf() {
+    if (!vehicle) return;
+
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     let y = 20;
