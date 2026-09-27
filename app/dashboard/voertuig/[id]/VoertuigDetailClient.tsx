@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import jsPDF from "jspdf";
 import { supabase } from "../../../../lib/supabaseClient";
+import { CARONIX_LOGO_BASE64 } from "../../../../lib/caronixLogo";
 import type { Session } from "@supabase/supabase-js";
 
 type Vehicle = {
@@ -170,18 +171,40 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
   const whatsappMessage = `Bekijk deze ${vehicle.brand} ${vehicle.model} bij Caronix: ${pageUrl}`;
   const whatsappLink = `https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`;
 
-  // Zet een afbeeldings-URL om naar base64, zodat deze in de PDF geplaatst kan worden.
+  // Zet een afbeeldings-URL om naar een genormaliseerde JPEG-dataURL via canvas.
+  // Dit fixt kwaliteitsproblemen (verkeerd formaat, scheve verhoudingen) en geeft
+  // de echte beeldverhouding terug, zodat de foto nooit vervormd in de PDF komt.
   // Faalt stil (bijv. door CORS) — de PDF wordt dan simpelweg zonder foto gegenereerd.
-  async function imageUrlToBase64(url: string): Promise<string | null> {
+  async function loadImageForPdf(
+    url: string
+  ): Promise<{ dataUrl: string; width: number; height: number } | null> {
     try {
       const response = await fetch(url);
       const blob = await response.blob();
-      return await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
+      const objectUrl = URL.createObjectURL(blob);
+
+      const img = document.createElement("img");
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error("afbeelding kon niet laden"));
+        img.src = objectUrl;
       });
+
+      const maxWidth = 1400; // groot genoeg voor scherpe print, niet nodeloos zwaar
+      const scale = Math.min(1, maxWidth / img.naturalWidth);
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(img.naturalWidth * scale);
+      canvas.height = Math.round(img.naturalHeight * scale);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      URL.revokeObjectURL(objectUrl);
+      return {
+        dataUrl: canvas.toDataURL("image/jpeg", 0.92),
+        width: canvas.width,
+        height: canvas.height,
+      };
     } catch {
       return null;
     }
@@ -190,71 +213,101 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
   async function handleDownloadPdf() {
     if (!vehicle) return;
 
+    // Caronix-huisstijlkleuren (RGB)
+    const blueDark: [number, number, number] = [46, 90, 148]; // #2E5A94
+    const blueLight: [number, number, number] = [127, 168, 217]; // #7FA8D9
+    const textDark: [number, number, number] = [25, 25, 25];
+    const textGrey: [number, number, number] = [120, 120, 120];
+    const lineGrey: [number, number, number] = [225, 225, 225];
+
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
-    let y = 20;
+    const margin = 15;
+    let y = 14;
 
-    // Kop: bedrijfsnaam
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(20);
-    doc.setTextColor(30, 30, 30);
-    doc.text("CARONIX", 15, y);
+    // Kop: logo linksboven
+    const logoWidth = 55;
+    const logoHeight = logoWidth * (300 / 900); // beeldverhouding van het logo
+    try {
+      doc.addImage(CARONIX_LOGO_BASE64, "JPEG", margin, y, logoWidth, logoHeight);
+    } catch {
+      // val terug op tekst als logo onverhoopt niet laadt
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(20);
+      doc.setTextColor(...textDark);
+      doc.text("CARONIX", margin, y + 8);
+    }
+
+    // Dunne blauwe streep rechtsboven als accent (i.p.v. een zwart/gekleurd vlak)
+    doc.setDrawColor(...blueDark);
+    doc.setLineWidth(1.2);
+    doc.line(pageWidth - margin - 40, y + 4, pageWidth - margin, y + 4);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(120, 120, 120);
-    doc.text("B2B Autohandel & Sourcing", 15, y + 6);
-    y += 20;
+    doc.setFontSize(8);
+    doc.setTextColor(...textGrey);
+    doc.text("B2B CARTRADING & EU SOURCING", pageWidth - margin, y + 10, { align: "right" });
 
-    // Foto (indien beschikbaar)
+    y += logoHeight + 8;
+    doc.setDrawColor(...lineGrey);
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 10;
+
+    // Foto
     if (photos.length > 0) {
-      const base64Image = await imageUrlToBase64(photos[0]);
-      if (base64Image) {
+      const image = await loadImageForPdf(photos[0]);
+      if (image) {
         try {
-          const imgWidth = pageWidth - 30;
-          const imgHeight = imgWidth * 0.6;
-          doc.addImage(base64Image, "JPEG", 15, y, imgWidth, imgHeight);
-          y += imgHeight + 12;
+          const maxImgWidth = pageWidth - margin * 2;
+          const maxImgHeight = 95;
+          const aspectRatio = image.width / image.height;
+
+          let imgWidth = maxImgWidth;
+          let imgHeight = imgWidth / aspectRatio;
+          if (imgHeight > maxImgHeight) {
+            imgHeight = maxImgHeight;
+            imgWidth = imgHeight * aspectRatio;
+          }
+          const imgX = margin + (maxImgWidth - imgWidth) / 2;
+
+          doc.addImage(image.dataUrl, "JPEG", imgX, y, imgWidth, imgHeight);
+          y += imgHeight + 10;
         } catch {
           // afbeelding kon niet worden toegevoegd, PDF gaat door zonder foto
         }
       }
     }
 
-    // Titel voertuig
+    // Titel + prijs op één regel
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.setTextColor(20, 20, 20);
-    doc.text(`${vehicle.brand} ${vehicle.model}`, 15, y);
-    y += 7;
+    doc.setFontSize(17);
+    doc.setTextColor(...textDark);
+    doc.text(`${vehicle.brand} ${vehicle.model}`.toUpperCase(), margin, y);
 
-    if (vehicle.uitvoering) {
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(10);
-      doc.setTextColor(90, 90, 90);
-      doc.text(vehicle.uitvoering, 15, y);
-      y += 8;
-    } else {
-      y += 3;
-    }
+    doc.setFontSize(17);
+    doc.setTextColor(...blueDark);
+    const priceText = vehicle.price ? "EUR " + Number(vehicle.price).toLocaleString("nl-NL") : "-";
+    doc.text(priceText, pageWidth - margin, y, { align: "right" });
+    y += 6;
 
-    // Prijs
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
-    doc.setTextColor(46, 90, 148);
-    doc.text(
-      vehicle.price ? "EUR " + Number(vehicle.price).toLocaleString("nl-NL") : "-",
-      15,
-      y
-    );
+    // Subtitel (uitvoering) + BTW-status
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(...textGrey);
+    const subtitleParts = [vehicle.uitvoering, vehicle.fuel, vehicle.transmission].filter(Boolean);
+    doc.text(subtitleParts.join(" | ") || "-", margin, y);
+
     if (vehicle.btw_type) {
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(120, 120, 120);
-      doc.text(vehicle.btw_type, 15, y + 5);
+      doc.text(vehicle.btw_type, pageWidth - margin, y, { align: "right" });
     }
-    y += 14;
+    y += 12;
 
-    // Specificaties
+    // Specificatie-grid (dunne lijn i.p.v. gevuld vlak = printvriendelijker)
+    doc.setDrawColor(...lineGrey);
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 9;
+
     const specs: [string, string][] = [
       ["Registratiedatum", registrationFormatted],
       ["Tellerstand", vehicle.km ? Number(vehicle.km).toLocaleString("nl-NL") + " km" : "-"],
@@ -264,37 +317,51 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
       ["Land van herkomst", vehicle.country || "-"],
     ];
 
-    doc.setDrawColor(220, 220, 220);
-    doc.line(15, y, pageWidth - 15, y);
-    y += 8;
-
+    const colWidth = (pageWidth - margin * 2) / 3;
     specs.forEach(([label, value], i) => {
-      const col = i % 2;
-      const row = Math.floor(i / 2);
-      const x = 15 + col * (pageWidth - 30) / 2;
-      const rowY = y + row * 14;
+      const col = i % 3;
+      const row = Math.floor(i / 3);
+      const x = margin + col * colWidth;
+      const rowY = y + row * 16;
 
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(130, 130, 130);
-      doc.text(label, x, rowY);
+      doc.setFontSize(8);
+      doc.setTextColor(...blueLight);
+      doc.text(label.toUpperCase(), x, rowY);
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
-      doc.setTextColor(20, 20, 20);
+      doc.setTextColor(...textDark);
       doc.text(value, x, rowY + 6);
     });
 
-    y += Math.ceil(specs.length / 2) * 14 + 10;
+    y += Math.ceil(specs.length / 3) * 16 + 8;
 
-    // Contactgegevens onderaan
-    doc.setDrawColor(220, 220, 220);
-    doc.line(15, y, pageWidth - 15, y);
-    y += 8;
+    // Call-to-action balk (blauw i.p.v. zwart, smal = weinig inktverbruik)
+    doc.setFillColor(...blueDark);
+    doc.rect(margin, y, pageWidth - margin * 2, 12, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(255, 255, 255);
+    doc.text("Interesse? Neem contact op via infocaronix@gmail.com", pageWidth / 2, y + 8, {
+      align: "center",
+    });
+    y += 22;
+
+    // Footer
+    doc.setDrawColor(...lineGrey);
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 6;
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(120, 120, 120);
-    doc.text("Interesse? Neem contact op via infocaronix@gmail.com", 15, y);
+    doc.setFontSize(7.5);
+    doc.setTextColor(...textGrey);
+    doc.text("CARONIX - B2B Cartrading & EU Sourcing", margin, y);
+    doc.text(
+      "Specificaties op basis van aangeleverde voertuiggegevens. Controleer beschikbaarheid vóór aankoop.",
+      margin,
+      y + 5
+    );
 
     doc.save(`${vehicle.brand}-${vehicle.model}-caronix.pdf`.replace(/\s+/g, "-").toLowerCase());
   }
