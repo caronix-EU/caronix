@@ -1,0 +1,574 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import jsPDF from "jspdf";
+import { supabase } from "../../../../lib/supabaseClient";
+import type { Session } from "@supabase/supabase-js";
+
+type Vehicle = {
+  id: number;
+  brand: string;
+  model: string;
+  uitvoering: string;
+  btw_type: string;
+  registration: string;
+  price: number;
+  km: number;
+  fuel: string;
+  color: string;
+  transmission: string;
+  country: string;
+  photo_urls: string[] | null;
+};
+
+function ArrowLeftIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  );
+}
+function ArrowRightIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+      <path d="m9 18 6-6-6-6" />
+    </svg>
+  );
+}
+function CalendarIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="M16 2v4M8 2v4M3 10h18" />
+    </svg>
+  );
+}
+function PinIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+function MailIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="m2 7 10 6 10-6" />
+    </svg>
+  );
+}
+function WhatsappIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.39 1.26 4.81L2 22l5.42-1.42a9.87 9.87 0 0 0 4.62 1.17h.01c5.46 0 9.9-4.45 9.9-9.91C21.95 6.45 17.5 2 12.04 2zm5.8 14.11c-.24.68-1.4 1.3-1.93 1.38-.5.08-1.13.11-1.83-.11-.42-.13-.96-.31-1.66-.6-2.92-1.26-4.83-4.18-4.98-4.38-.15-.2-1.19-1.58-1.19-3.01 0-1.43.75-2.13 1.02-2.42.27-.29.58-.36.78-.36l.56.01c.18.01.42-.07.65.5.24.58.82 2.01.89 2.16.07.15.11.32.02.52-.09.2-.13.32-.26.49-.13.17-.28.38-.4.51-.13.13-.27.28-.11.55.15.27.68 1.12 1.46 1.81 1.01.9 1.86 1.18 2.13 1.31.27.13.43.11.59-.07.16-.18.68-.79.86-1.06.18-.27.36-.22.6-.13.24.09 1.53.72 1.79.85.27.13.44.2.51.31.07.11.07.64-.17 1.32z" />
+    </svg>
+  );
+}
+function PdfIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <path d="M14 2v6h6" />
+    </svg>
+  );
+}
+
+export default function VoertuigDetailClient({ id }: { id: string }) {
+  const router = useRouter();
+
+  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+  const [currentPhoto, setCurrentPhoto] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const [session, setSession] = useState<Session | null>(null);
+  const isLoggedIn = !!session;
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+    });
+  }, []);
+
+  useEffect(() => {
+    async function fetchVehicle() {
+      const { data, error } = await supabase.from("vehicles").select("*").eq("id", id).single();
+      if (error || !data) {
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
+      setVehicle(data as Vehicle);
+      setLoading(false);
+    }
+    if (id) fetchVehicle();
+  }, [id]);
+
+  async function handleDelete() {
+    if (!vehicle) return;
+    const confirmed = window.confirm(
+      "Weet je zeker dat je dit voertuig wilt verwijderen? Dit kan niet ongedaan gemaakt worden."
+    );
+    if (!confirmed) return;
+
+    setDeleting(true);
+    const { error } = await supabase.from("vehicles").delete().eq("id", vehicle.id);
+    if (error) {
+      alert("Verwijderen mislukt: " + error.message);
+      setDeleting(false);
+    } else {
+      router.push("/dashboard");
+    }
+  }
+
+  const photos = vehicle?.photo_urls || [];
+
+  function nextPhoto() {
+    setCurrentPhoto((prev) => (prev + 1) % photos.length);
+  }
+  function prevPhoto() {
+    setCurrentPhoto((prev) => (prev - 1 + photos.length) % photos.length);
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center" style={{ backgroundColor: "#08090B" }}>
+        <p style={{ color: "#7A828C" }}>Laden...</p>
+      </div>
+    );
+  }
+
+  if (notFound || !vehicle) {
+    return (
+      <div className="min-h-screen w-full flex flex-col items-center justify-center gap-4" style={{ backgroundColor: "#08090B" }}>
+        <p style={{ color: "#7A828C" }}>Dit voertuig kon niet gevonden worden.</p>
+        <Link href="/dashboard" style={{ color: "#7FA8D9" }}>← Terug naar aanbod</Link>
+      </div>
+    );
+  }
+
+  const registrationFormatted = vehicle.registration
+    ? new Date(vehicle.registration).toLocaleDateString("nl-NL", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+    : "-";
+
+  const mailSubject = `Interesse in ${vehicle.brand} ${vehicle.model} (${
+    vehicle.registration ? new Date(vehicle.registration).getFullYear() : ""
+  })`;
+  const mailtoLink = `mailto:infocaronix@gmail.com?subject=${encodeURIComponent(mailSubject)}`;
+
+  const pageUrl = typeof window !== "undefined" ? window.location.href : "";
+  const whatsappMessage = `Bekijk deze ${vehicle.brand} ${vehicle.model} bij Caronix: ${pageUrl}`;
+  const whatsappLink = `https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`;
+
+  // Zet een afbeeldings-URL om naar base64, zodat deze in de PDF geplaatst kan worden.
+  // Faalt stil (bijv. door CORS) — de PDF wordt dan simpelweg zonder foto gegenereerd.
+  async function imageUrlToBase64(url: string): Promise<string | null> {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch {
+      return null;
+    }
+  }
+
+  async function handleDownloadPdf() {
+    if (!vehicle) return;
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let y = 20;
+
+    // Kop: bedrijfsnaam
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.setTextColor(30, 30, 30);
+    doc.text("CARONIX", 15, y);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(120, 120, 120);
+    doc.text("B2B Autohandel & Sourcing", 15, y + 6);
+    y += 20;
+
+    // Foto (indien beschikbaar)
+    if (photos.length > 0) {
+      const base64Image = await imageUrlToBase64(photos[0]);
+      if (base64Image) {
+        try {
+          const imgWidth = pageWidth - 30;
+          const imgHeight = imgWidth * 0.6;
+          doc.addImage(base64Image, "JPEG", 15, y, imgWidth, imgHeight);
+          y += imgHeight + 12;
+        } catch {
+          // afbeelding kon niet worden toegevoegd, PDF gaat door zonder foto
+        }
+      }
+    }
+
+    // Titel voertuig
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(20, 20, 20);
+    doc.text(`${vehicle.brand} ${vehicle.model}`, 15, y);
+    y += 7;
+
+    if (vehicle.uitvoering) {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(90, 90, 90);
+      doc.text(vehicle.uitvoering, 15, y);
+      y += 8;
+    } else {
+      y += 3;
+    }
+
+    // Prijs
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(46, 90, 148);
+    doc.text(
+      vehicle.price ? "EUR " + Number(vehicle.price).toLocaleString("nl-NL") : "-",
+      15,
+      y
+    );
+    if (vehicle.btw_type) {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(120, 120, 120);
+      doc.text(vehicle.btw_type, 15, y + 5);
+    }
+    y += 14;
+
+    // Specificaties
+    const specs: [string, string][] = [
+      ["Registratiedatum", registrationFormatted],
+      ["Tellerstand", vehicle.km ? Number(vehicle.km).toLocaleString("nl-NL") + " km" : "-"],
+      ["Brandstof", vehicle.fuel || "-"],
+      ["Transmissie", vehicle.transmission || "-"],
+      ["Kleur", vehicle.color || "-"],
+      ["Land van herkomst", vehicle.country || "-"],
+    ];
+
+    doc.setDrawColor(220, 220, 220);
+    doc.line(15, y, pageWidth - 15, y);
+    y += 8;
+
+    specs.forEach(([label, value], i) => {
+      const col = i % 2;
+      const row = Math.floor(i / 2);
+      const x = 15 + col * (pageWidth - 30) / 2;
+      const rowY = y + row * 14;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(130, 130, 130);
+      doc.text(label, x, rowY);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(20, 20, 20);
+      doc.text(value, x, rowY + 6);
+    });
+
+    y += Math.ceil(specs.length / 2) * 14 + 10;
+
+    // Contactgegevens onderaan
+    doc.setDrawColor(220, 220, 220);
+    doc.line(15, y, pageWidth - 15, y);
+    y += 8;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(120, 120, 120);
+    doc.text("Interesse? Neem contact op via infocaronix@gmail.com", 15, y);
+
+    doc.save(`${vehicle.brand}-${vehicle.model}-caronix.pdf`.replace(/\s+/g, "-").toLowerCase());
+  }
+
+  return (
+    <div className="min-h-screen w-full" style={{ backgroundColor: "#08090B" }}>
+      {/* Navbar */}
+      <div
+        className="flex items-center justify-between px-6 md:px-10 py-4 border-b"
+        style={{ borderColor: "#1E2126" }}
+      >
+        <Link
+          href="/"
+          className="text-lg tracking-tight"
+          style={{ color: "#F2F3F4", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}
+        >
+          CARONIX
+        </Link>
+        <Link href="/dashboard" className="text-sm flex items-center gap-1" style={{ color: "#8A929C" }}>
+          <ArrowLeftIcon /> Terug naar aanbod
+        </Link>
+      </div>
+
+      <div className="px-6 md:px-10 py-8 max-w-5xl mx-auto">
+        {isLoggedIn && (
+          <div className="flex gap-2 mb-4">
+            <Link
+              href={"/dashboard/bewerken/" + vehicle.id}
+              className="px-4 py-1.5 text-xs rounded-full"
+              style={{ backgroundColor: "#2E5A94", color: "#F2F3F4" }}
+            >
+              Bewerken
+            </Link>
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="px-4 py-1.5 text-xs rounded-full border"
+              style={{
+                borderColor: "#5A2E2E",
+                color: deleting ? "#6E7680" : "#D98787",
+                backgroundColor: "transparent",
+              }}
+            >
+              {deleting ? "Bezig..." : "Verwijderen"}
+            </button>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Fotogalerij */}
+          <div>
+            <div
+              className="relative h-80 md:h-96 rounded-md overflow-hidden flex items-center justify-center"
+              style={{ background: "linear-gradient(135deg,#12151A,#1C2128)" }}
+            >
+              {photos.length > 0 ? (
+                <img
+                  src={photos[currentPhoto]}
+                  alt={vehicle.brand + " " + vehicle.model}
+                  className="w-full h-full object-contain cursor-zoom-in"
+                  onClick={() => setLightboxOpen(true)}
+                />
+              ) : (
+                <span className="text-xs" style={{ color: "#4E555E" }}>
+                  Geen foto
+                </span>
+              )}
+
+              {photos.length > 1 && (
+                <>
+                  <button
+                    onClick={prevPhoto}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: "rgba(8,9,11,0.7)", color: "#F2F3F4" }}
+                    aria-label="Vorige foto"
+                  >
+                    <ArrowLeftIcon />
+                  </button>
+                  <button
+                    onClick={nextPhoto}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: "rgba(8,9,11,0.7)", color: "#F2F3F4" }}
+                    aria-label="Volgende foto"
+                  >
+                    <ArrowRightIcon />
+                  </button>
+                  <div
+                    className="absolute top-2 right-2 text-[10px] px-1.5 py-0.5 rounded-full"
+                    style={{ backgroundColor: "rgba(8,9,11,0.7)", color: "#F2F3F4" }}
+                  >
+                    {currentPhoto + 1}/{photos.length}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {photos.length > 1 && (
+              <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+                {photos.map((src, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentPhoto(i)}
+                    className="shrink-0 w-16 h-16 rounded-sm overflow-hidden border"
+                    style={{
+                      borderColor: i === currentPhoto ? "#7FA8D9" : "#2A2E34",
+                    }}
+                  >
+                    <img src={src} alt={`foto ${i + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Specificaties */}
+          <div>
+            <div className="text-sm" style={{ color: "#8A929C" }}>
+              {vehicle.brand}
+            </div>
+            <h1 className="text-2xl mb-1" style={{ color: "#F2F3F4", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600 }}>
+              {vehicle.model}
+            </h1>
+            {vehicle.uitvoering && (
+              <div className="text-sm mb-4" style={{ color: "#B7BEC7" }}>
+                {vehicle.uitvoering}
+              </div>
+            )}
+
+            <div className="flex items-baseline gap-2 mb-6">
+              <span className="text-2xl" style={{ color: "#7FA8D9", fontWeight: 700 }}>
+                {vehicle.price ? "EUR " + Number(vehicle.price).toLocaleString("nl-NL") : "-"}
+              </span>
+              {vehicle.btw_type && (
+                <span className="text-xs" style={{ color: "#8A929C" }}>
+                  {vehicle.btw_type}
+                </span>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+              <div>
+                <div className="text-xs mb-1 flex items-center gap-1" style={{ color: "#8A929C" }}>
+                  <CalendarIcon /> Registratiedatum
+                </div>
+                <div style={{ color: "#F2F3F4" }}>{registrationFormatted}</div>
+              </div>
+              <div>
+                <div className="text-xs mb-1" style={{ color: "#8A929C" }}>
+                  Tellerstand
+                </div>
+                <div style={{ color: "#F2F3F4" }}>
+                  {vehicle.km ? Number(vehicle.km).toLocaleString("nl-NL") + " km" : "-"}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs mb-1" style={{ color: "#8A929C" }}>
+                  Brandstof
+                </div>
+                <div style={{ color: "#F2F3F4" }}>{vehicle.fuel || "-"}</div>
+              </div>
+              <div>
+                <div className="text-xs mb-1" style={{ color: "#8A929C" }}>
+                  Transmissie
+                </div>
+                <div style={{ color: "#F2F3F4" }}>{vehicle.transmission || "-"}</div>
+              </div>
+              <div>
+                <div className="text-xs mb-1" style={{ color: "#8A929C" }}>
+                  Kleur
+                </div>
+                <div style={{ color: "#F2F3F4" }}>{vehicle.color || "-"}</div>
+              </div>
+              <div>
+                <div className="text-xs mb-1 flex items-center gap-1" style={{ color: "#8A929C" }}>
+                  <PinIcon /> Land van herkomst
+                </div>
+                <div style={{ color: "#F2F3F4" }}>{vehicle.country || "-"}</div>
+              </div>
+            </div>
+
+            <a
+              href={mailtoLink}
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-sm text-sm"
+              style={{ backgroundColor: "#2E5A94", color: "#F2F3F4" }}
+            >
+              <MailIcon />
+              Interesse? Neem contact op
+            </a>
+
+            <div className="flex gap-2 mt-2">
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-sm text-xs border"
+                style={{ borderColor: "#2A2E34", color: "#F2F3F4" }}
+              >
+                <WhatsappIcon />
+                Deel via WhatsApp
+              </a>
+              <button
+                onClick={handleDownloadPdf}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-sm text-xs border"
+                style={{ borderColor: "#2A2E34", color: "#F2F3F4" }}
+              >
+                <PdfIcon />
+                Download als PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Lightbox */}
+      {lightboxOpen && photos.length > 0 && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-6"
+          style={{ backgroundColor: "rgba(8,9,11,0.92)" }}
+          onClick={() => setLightboxOpen(false)}
+        >
+          <button
+            onClick={() => setLightboxOpen(false)}
+            className="absolute top-5 right-5 w-10 h-10 rounded-full flex items-center justify-center text-2xl"
+            style={{ backgroundColor: "rgba(242,243,244,0.1)", color: "#F2F3F4" }}
+            aria-label="Sluiten"
+          >
+            ×
+          </button>
+
+          {photos.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                prevPhoto();
+              }}
+              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: "rgba(242,243,244,0.1)", color: "#F2F3F4" }}
+              aria-label="Vorige foto"
+            >
+              <ArrowLeftIcon />
+            </button>
+          )}
+
+          <img
+            src={photos[currentPhoto]}
+            alt="Uitvergrote foto"
+            className="max-w-full max-h-full object-contain rounded-md"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {photos.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                nextPhoto();
+              }}
+              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: "rgba(242,243,244,0.1)", color: "#F2F3F4" }}
+              aria-label="Volgende foto"
+            >
+              <ArrowRightIcon />
+            </button>
+          )}
+
+          {photos.length > 1 && (
+            <div
+              className="absolute bottom-6 left-1/2 -translate-x-1/2 text-xs px-3 py-1.5 rounded-full"
+              style={{ backgroundColor: "rgba(242,243,244,0.1)", color: "#F2F3F4" }}
+            >
+              {currentPhoto + 1} / {photos.length}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
