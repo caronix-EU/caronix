@@ -253,13 +253,13 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
     doc.line(margin, y, pageWidth - margin, y);
     y += 10;
 
-    // Foto
+    // Hoofdfoto (iets kleiner dan voorheen, zodat er ruimte overblijft voor miniaturen)
     if (photos.length > 0) {
       const image = await loadImageForPdf(photos[0]);
       if (image) {
         try {
           const maxImgWidth = pageWidth - margin * 2;
-          const maxImgHeight = 95;
+          const maxImgHeight = 72;
           const aspectRatio = image.width / image.height;
 
           let imgWidth = maxImgWidth;
@@ -271,11 +271,62 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
           const imgX = margin + (maxImgWidth - imgWidth) / 2;
 
           doc.addImage(image.dataUrl, "JPEG", imgX, y, imgWidth, imgHeight);
-          y += imgHeight + 10;
+          y += imgHeight + 6;
         } catch {
           // afbeelding kon niet worden toegevoegd, PDF gaat door zonder foto
         }
       }
+    }
+
+    // Miniaturenrij: toont tot 4 overige foto's naast elkaar onder de hoofdfoto
+    const remainingPhotos = photos.slice(1, 5); // foto 2 t/m 5
+    if (remainingPhotos.length > 0) {
+      const thumbHeight = 24;
+      const gap = 4;
+      const totalWidth = pageWidth - margin * 2;
+      const slotWidth = (totalWidth - gap * (remainingPhotos.length - 1)) / remainingPhotos.length;
+
+      for (let i = 0; i < remainingPhotos.length; i++) {
+        const slotX = margin + i * (slotWidth + gap);
+
+        // Lichte kaderlijn per vakje, ook zichtbaar als de foto zelf niet laadt
+        doc.setDrawColor(...lineGrey);
+        doc.setLineWidth(0.3);
+        doc.rect(slotX, y, slotWidth, thumbHeight);
+
+        const thumb = await loadImageForPdf(remainingPhotos[i]);
+        if (thumb) {
+          const thumbAspect = thumb.width / thumb.height;
+          let tw = slotWidth;
+          let th = tw / thumbAspect;
+          if (th > thumbHeight) {
+            th = thumbHeight;
+            tw = th * thumbAspect;
+          }
+          const tx = slotX + (slotWidth - tw) / 2;
+          const ty = y + (thumbHeight - th) / 2;
+          try {
+            doc.addImage(thumb.dataUrl, "JPEG", tx, ty, tw, th);
+          } catch {
+            // deze miniatuur overslaan, kader blijft zichtbaar
+          }
+        }
+      }
+
+      // "+X meer" label als er meer dan 5 foto's in totaal zijn
+      const extraCount = photos.length - 1 - remainingPhotos.length;
+      if (extraCount > 0) {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(7);
+        doc.setTextColor(...textGrey);
+        doc.text(`+${extraCount} meer op aanvraag`, pageWidth - margin, y + thumbHeight + 5, {
+          align: "right",
+        });
+      }
+
+      y += thumbHeight + 10;
+    } else {
+      y += 4;
     }
 
     // Titel + prijs op één regel
