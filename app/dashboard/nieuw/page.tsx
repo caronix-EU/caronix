@@ -15,6 +15,7 @@ export default function NieuwVoertuigPage() {
   const [price, setPrice] = useState("");
   const [km, setKm] = useState("");
   const [fuel, setFuel] = useState("");
+  const [co2, setCo2] = useState("");
   const [color, setColor] = useState("");
   const [transmission, setTransmission] = useState("");
   const [country, setCountry] = useState("");
@@ -78,6 +79,7 @@ export default function NieuwVoertuigPage() {
         price: price ? Number(price) : null,
         km: km ? Number(km) : null,
         fuel,
+        co2: co2 ? Number(co2) : null,
         color,
         transmission,
         country,
@@ -194,6 +196,12 @@ export default function NieuwVoertuigPage() {
               <label className={labelClass} style={labelStyle}>Transmissie</label>
               <div className={fieldWrap} style={fieldBorder}>
                 <input value={transmission} onChange={(e) => setTransmission(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="Automaat" />
+              </div>
+            </div>
+            <div>
+              <label className={labelClass} style={labelStyle}>CO2-uitstoot (g/km)</label>
+              <div className={fieldWrap} style={fieldBorder}>
+                <input type="number" value={co2} onChange={(e) => setCo2(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="120" />
               </div>
             </div>
             <div className="sm:col-span-2">
