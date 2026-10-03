@@ -31,9 +31,9 @@ export default function LoginPage() {
       register: "Registreer hier",
       footer: "B2B-voertuigbemiddeling",
       loginBtn: "Login",
-      companyHeading: "Caronix: Jouw betrouwbare partner in auto groothandel B2B",
+      companyHeading: "Caronix: B2B Cartrading & Sourcing",
       companyText:
-        "Ben je op zoek naar een betrouwbare en efficiente manier om je wagenpark uit te breiden? Zoek niet verder! Bij Caronix geniet je van een scala aan voordelen die jouw bedrijf naar nieuwe hoogten zullen stuwen. Wij zijn gespecialiseerd in het in- en verkopen van personenauto's, met meer dan 25 jaar ervaring in de branche.",
+        "Caronix is een auto groothandel die bemiddelt voor autobedrijven in de in- en verkoop van personenauto's binnen de EU. Met ruim 25 jaar ervaring in de branche bieden wij een transparante en efficiente manier om uw wagenpark uit te breiden - zonder omwegen.",
     },
     EN: {
       loginTitle: "Log in to your account",
@@ -44,9 +44,9 @@ export default function LoginPage() {
       register: "Register here",
       footer: "B2B vehicle brokerage",
       loginBtn: "Login",
-      companyHeading: "Caronix: Your trusted partner in B2B car wholesale",
+      companyHeading: "Caronix: B2B Cartrading & Sourcing",
       companyText:
-        "Looking for a reliable and efficient way to expand your fleet? Look no further! At Caronix you will enjoy a range of benefits that will take your business to new heights. We specialize in buying and selling passenger cars, with over 25 years of experience in the industry.",
+        "Caronix is a car wholesaler that brokers vehicle trade for dealers, handling the purchase and sale of passenger cars across the EU. With over 25 years of experience in the industry, we offer a transparent and efficient way to expand your fleet - without the hassle.",
     },
   }[lang];
 
@@ -150,9 +150,9 @@ export default function LoginPage() {
 
             {!showLogin ? (
               <div className="text-center text-sm" style={{ color: "#B7BEC7" }}>
-                <p className="mb-4" style={{ color: "#F2F3F4", fontWeight: 700 }}>
+                <h2 className="mb-4 text-sm" style={{ color: "#F2F3F4", fontWeight: 700 }}>
                   {t.companyHeading}
-                </p>
+                </h2>
                 <p>{t.companyText}</p>
               </div>
             ) : (
