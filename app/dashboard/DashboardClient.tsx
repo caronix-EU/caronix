@@ -753,6 +753,7 @@ export default function DashboardClient({ initialVehicles }: { initialVehicles: 
                     <span>{v.fuel}</span>
                     <span>{v.color}</span>
                     <span>{v.transmission}</span>
+                    {v.co2 != null && <span>{v.co2} g/km</span>}
                   </div>
 
                   {isLoggedIn && (
