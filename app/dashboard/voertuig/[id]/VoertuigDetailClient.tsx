@@ -18,6 +18,7 @@ type Vehicle = {
   price: number;
   km: number;
   fuel: string;
+  co2: number | null;
   color: string;
   transmission: string;
   country: string;
@@ -366,6 +367,7 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
       ["Transmissie", vehicle.transmission || "-"],
       ["Kleur", vehicle.color || "-"],
       ["Land van herkomst", vehicle.country || "-"],
+      ["CO2-uitstoot", vehicle.co2 ? vehicle.co2 + " g/km" : "-"],
     ];
 
     const colWidth = (pageWidth - margin * 2) / 3;
@@ -591,7 +593,18 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
                 </div>
                 <div style={{ color: "#F2F3F4" }}>{vehicle.country || "-"}</div>
               </div>
+              <div>
+                <div className="text-xs mb-1" style={{ color: "#8A929C" }}>
+                  CO2-uitstoot
+                </div>
+                <div style={{ color: "#F2F3F4" }}>{vehicle.co2 ? vehicle.co2 + " g/km" : "-"}</div>
+              </div>
             </div>
+
+            <p className="text-xs mb-4" style={{ color: "#6E7680" }}>
+              Prijs exclusief BPM en importkosten. Koper is zelf verantwoordelijk voor eventuele
+              registratie en afdracht bij de RDW/Belastingdienst.
+            </p>
 
             <a
               href={mailtoLink}

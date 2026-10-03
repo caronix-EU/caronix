@@ -15,6 +15,7 @@ type Vehicle = {
   price: number;
   km: number;
   fuel: string;
+  co2: number | null;
   color: string;
   transmission: string;
   country: string;
