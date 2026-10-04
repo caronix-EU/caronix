@@ -224,8 +224,14 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="p-6 md:p-8 text-xs" style={{ color: "#4E555E" }}>
-          Caronix - {t.footer}
+        <div className="p-6 md:p-8 text-xs flex flex-wrap items-center gap-x-4 gap-y-2" style={{ color: "#4E555E" }}>
+          <span>Caronix - {t.footer}</span>
+          <Link href="/voorwaarden" className="underline" style={{ color: "#4E555E" }}>
+            Algemene voorwaarden
+          </Link>
+          <Link href="/privacybeleid" className="underline" style={{ color: "#4E555E" }}>
+            Privacybeleid
+          </Link>
         </div>
       </div>
     </div>
