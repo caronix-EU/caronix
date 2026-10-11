@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabaseClient";
+import { CARROSSERIE_OPTIONS } from "../../../lib/carrosserie";
 
 export default function NieuwVoertuigPage() {
   const router = useRouter();
@@ -16,6 +17,9 @@ export default function NieuwVoertuigPage() {
   const [km, setKm] = useState("");
   const [fuel, setFuel] = useState("");
   const [co2, setCo2] = useState("");
+  const [bodyType, setBodyType] = useState("");
+  const [vin, setVin] = useState("");
+  const [bpm, setBpm] = useState("");
   const [color, setColor] = useState("");
   const [transmission, setTransmission] = useState("");
   const [country, setCountry] = useState("");
@@ -80,6 +84,10 @@ export default function NieuwVoertuigPage() {
         km: km ? Number(km) : null,
         fuel,
         co2: co2 ? Number(co2) : null,
+        body_type: bodyType || null,
+        vin: vin.trim() || null,
+        bpm_indicatie: bpm ? Number(bpm) : null,
+        bpm_peildatum: bpm ? new Date().toLocaleDateString("sv-SE") : null,
         color,
         transmission,
         country,
@@ -203,6 +211,31 @@ export default function NieuwVoertuigPage() {
               <div className={fieldWrap} style={fieldBorder}>
                 <input type="number" value={co2} onChange={(e) => setCo2(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="120" />
               </div>
+            </div>
+            <div>
+              <label className={labelClass} style={labelStyle}>Carrosserie</label>
+              <div className={fieldWrap} style={fieldBorder}>
+                <select value={bodyType} onChange={(e) => setBodyType(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={{ color: bodyType ? "#F2F3F4" : "#8A929C" }}>
+                  <option value="" style={{ color: "#000" }}>Kies carrosserie</option>
+                  {CARROSSERIE_OPTIONS.map((o) => (
+                    <option key={o} value={o} style={{ color: "#000" }}>{o}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className={labelClass} style={labelStyle}>Chassisnummer (VIN)</label>
+              <div className={fieldWrap} style={fieldBorder}>
+                <input value={vin} onChange={(e) => setVin(e.target.value.toUpperCase())} maxLength={17} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="17 tekens" />
+              </div>
+              <p className="text-[11px] mt-1" style={{ color: "#5B6570" }}>Alleen zichtbaar op de pagina van de auto zelf.</p>
+            </div>
+            <div>
+              <label className={labelClass} style={labelStyle}>BPM-indicatie (€, optioneel)</label>
+              <div className={fieldWrap} style={fieldBorder}>
+                <input type="number" value={bpm} onChange={(e) => setBpm(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="4250" />
+              </div>
+              <p className="text-[11px] mt-1" style={{ color: "#5B6570" }}>Bedrag uit Autotelex Import. De datum wordt automatisch vastgelegd. Leeg laten bij auto&apos;s op NL-kenteken.</p>
             </div>
             <div className="sm:col-span-2">
               <label className={labelClass} style={labelStyle}>Land van herkomst</label>

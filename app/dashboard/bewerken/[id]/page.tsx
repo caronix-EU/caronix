@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { supabase } from "../../../../lib/supabaseClient";
+import { CARROSSERIE_OPTIONS } from "../../../../lib/carrosserie";
 
 export default function BewerkVoertuigPage() {
   const router = useRouter();
@@ -21,6 +22,11 @@ export default function BewerkVoertuigPage() {
   const [km, setKm] = useState("");
   const [fuel, setFuel] = useState("");
   const [co2, setCo2] = useState("");
+  const [bodyType, setBodyType] = useState("");
+  const [vin, setVin] = useState("");
+  const [bpm, setBpm] = useState("");
+  const [bpmOriginal, setBpmOriginal] = useState("");
+  const [bpmPeildatum, setBpmPeildatum] = useState("");
   const [color, setColor] = useState("");
   const [transmission, setTransmission] = useState("");
   const [country, setCountry] = useState("");
@@ -52,6 +58,11 @@ export default function BewerkVoertuigPage() {
       setKm(data.km ? String(data.km) : "");
       setFuel(data.fuel || "");
       setCo2(data.co2 ? String(data.co2) : "");
+      setBodyType(data.body_type || "");
+      setVin(data.vin || "");
+      setBpm(data.bpm_indicatie ? String(data.bpm_indicatie) : "");
+      setBpmOriginal(data.bpm_indicatie ? String(data.bpm_indicatie) : "");
+      setBpmPeildatum(data.bpm_peildatum ? String(data.bpm_peildatum).slice(0, 10) : "");
       setColor(data.color || "");
       setTransmission(data.transmission || "");
       setCountry(data.country || "");
@@ -113,6 +124,15 @@ export default function BewerkVoertuigPage() {
           km: km ? Number(km) : null,
           fuel,
           co2: co2 ? Number(co2) : null,
+          body_type: bodyType || null,
+          vin: vin.trim() || null,
+          bpm_indicatie: bpm ? Number(bpm) : null,
+          // Peildatum alleen vernieuwen als het bedrag is aangepast
+          bpm_peildatum: bpm
+            ? bpm !== bpmOriginal || !bpmPeildatum
+              ? new Date().toLocaleDateString("sv-SE")
+              : bpmPeildatum
+            : null,
           color,
           transmission,
           country,
@@ -252,6 +272,36 @@ export default function BewerkVoertuigPage() {
               <div className={fieldWrap} style={fieldBorder}>
                 <input type="number" value={co2} onChange={(e) => setCo2(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} />
               </div>
+            </div>
+            <div>
+              <label className={labelClass} style={labelStyle}>Carrosserie</label>
+              <div className={fieldWrap} style={fieldBorder}>
+                <select value={bodyType} onChange={(e) => setBodyType(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={{ color: bodyType ? "#F2F3F4" : "#8A929C" }}>
+                  <option value="" style={{ color: "#000" }}>Kies carrosserie</option>
+                  {CARROSSERIE_OPTIONS.map((o) => (
+                    <option key={o} value={o} style={{ color: "#000" }}>{o}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className={labelClass} style={labelStyle}>Chassisnummer (VIN)</label>
+              <div className={fieldWrap} style={fieldBorder}>
+                <input value={vin} onChange={(e) => setVin(e.target.value.toUpperCase())} maxLength={17} className="w-full bg-transparent outline-none text-sm" style={inputStyle} />
+              </div>
+              <p className="text-[11px] mt-1" style={{ color: "#5B6570" }}>Alleen zichtbaar op de pagina van de auto zelf.</p>
+            </div>
+            <div>
+              <label className={labelClass} style={labelStyle}>BPM-indicatie (€, optioneel)</label>
+              <div className={fieldWrap} style={fieldBorder}>
+                <input type="number" value={bpm} onChange={(e) => setBpm(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} />
+              </div>
+              <p className="text-[11px] mt-1" style={{ color: "#5B6570" }}>
+                Bedrag uit Autotelex Import.{" "}
+                {bpmPeildatum && bpm === bpmOriginal
+                  ? "Peildatum: " + bpmPeildatum.split("-").reverse().join("-") + ". Pas het bedrag aan om de datum te vernieuwen."
+                  : "De datum wordt automatisch vastgelegd."}
+              </p>
             </div>
             <div className="sm:col-span-2">
               <label className={labelClass} style={labelStyle}>Land van herkomst</label>

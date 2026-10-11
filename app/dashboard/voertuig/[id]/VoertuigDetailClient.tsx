@@ -19,6 +19,10 @@ type Vehicle = {
   km: number;
   fuel: string;
   co2: number | null;
+  body_type: string | null;
+  vin: string | null;
+  bpm_indicatie: number | null;
+  bpm_peildatum: string | null;
   color: string;
   transmission: string;
   country: string;
@@ -166,6 +170,16 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
   const mailSubject = `Interesse in ${vehicle.brand} ${vehicle.model} (${
     vehicle.registration ? new Date(vehicle.registration).getFullYear() : ""
   })`;
+  // Bron die in de BPM-disclaimer wordt genoemd. Pas hier aan als de bron verandert.
+  const BPM_BRON = "Autotelex Import";
+  const bpmPeildatumFormatted = vehicle.bpm_peildatum
+    ? new Date(vehicle.bpm_peildatum).toLocaleDateString("nl-NL", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+    : null;
+
   const mailtoLink = `mailto:infocaronix@gmail.com?subject=${encodeURIComponent(mailSubject)}`;
 
   const pageUrl = typeof window !== "undefined" ? window.location.href : "";
@@ -599,7 +613,48 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
                 </div>
                 <div style={{ color: "#F2F3F4" }}>{vehicle.co2 ? vehicle.co2 + " g/km" : "-"}</div>
               </div>
+              {vehicle.body_type && (
+                <div>
+                  <div className="text-xs mb-1" style={{ color: "#8A929C" }}>
+                    Carrosserie
+                  </div>
+                  <div style={{ color: "#F2F3F4" }}>{vehicle.body_type}</div>
+                </div>
+              )}
+              {vehicle.vin && (
+                <div>
+                  <div className="text-xs mb-1" style={{ color: "#8A929C" }}>
+                    Chassisnummer (VIN)
+                  </div>
+                  <div className="tracking-wide break-all" style={{ color: "#F2F3F4" }}>
+                    {vehicle.vin}
+                  </div>
+                </div>
+              )}
             </div>
+
+            {vehicle.bpm_indicatie != null && (
+              <div
+                className="rounded-md border p-4 mb-4"
+                style={{ borderColor: "#2A2E34", backgroundColor: "#0E1013" }}
+              >
+                <div className="text-xs mb-1" style={{ color: "#8A929C" }}>
+                  Indicatieve BPM bij import
+                </div>
+                <div className="text-lg" style={{ color: "#F2F3F4", fontWeight: 600 }}>
+                  EUR {Number(vehicle.bpm_indicatie).toLocaleString("nl-NL")}
+                </div>
+                <p className="text-[11px] mt-2 leading-relaxed" style={{ color: "#6E7680" }}>
+                  Indicatieve berekening volgens {BPM_BRON}
+                  {bpmPeildatumFormatted ? `, peildatum ${bpmPeildatumFormatted}` : ""}. Voor de BPM bij
+                  import zijn meerdere berekeningsmethoden toegestaan (forfaitaire afschrijvingstabel,
+                  koerslijst of taxatierapport), waardoor het definitieve bedrag kan afwijken. BPM-tarieven
+                  kunnen bovendien jaarlijks wijzigen. Dit is geen definitieve berekening: de koper dient
+                  de definitieve BPM zelf te (laten) berekenen. Aan deze indicatie kunnen geen rechten
+                  worden ontleend.
+                </p>
+              </div>
+            )}
 
             <p className="text-xs mb-4" style={{ color: "#6E7680" }}>
               Prijs exclusief BPM en importkosten. Koper is zelf verantwoordelijk voor eventuele

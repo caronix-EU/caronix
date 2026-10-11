@@ -16,6 +16,7 @@ type Vehicle = {
   km: number;
   fuel: string;
   co2: number | null;
+  body_type: string | null;
   color: string;
   transmission: string;
   country: string;
@@ -128,6 +129,7 @@ export default function DashboardClient({ initialVehicles }: { initialVehicles: 
   // Filterstatus: lege string = "alle"
   const [filterBrand, setFilterBrand] = useState("");
   const [filterModel, setFilterModel] = useState("");
+  const [filterBody, setFilterBody] = useState("");
   const [filterFuel, setFilterFuel] = useState("");
   const [filterColor, setFilterColor] = useState("");
   const [filterTransmission, setFilterTransmission] = useState("");
@@ -192,6 +194,7 @@ export default function DashboardClient({ initialVehicles }: { initialVehicles: 
   // Dropdown-opties, automatisch afgeleid uit de huidige voertuigen
   const brandOptions = useMemo(() => uniqueValues(vehicles, "brand"), [vehicles]);
   const modelOptions = useMemo(() => uniqueValues(vehicles, "model"), [vehicles]);
+  const bodyOptions = useMemo(() => uniqueValues(vehicles, "body_type"), [vehicles]);
   const fuelOptions = useMemo(() => uniqueValues(vehicles, "fuel"), [vehicles]);
   const colorOptions = useMemo(() => uniqueValues(vehicles, "color"), [vehicles]);
   const transmissionOptions = useMemo(() => uniqueValues(vehicles, "transmission"), [vehicles]);
@@ -201,6 +204,7 @@ export default function DashboardClient({ initialVehicles }: { initialVehicles: 
     return vehicles.filter((v) => {
       if (filterBrand && v.brand !== filterBrand) return false;
       if (filterModel && v.model !== filterModel) return false;
+      if (filterBody && v.body_type !== filterBody) return false;
       if (filterFuel && v.fuel !== filterFuel) return false;
       if (filterColor && v.color !== filterColor) return false;
       if (filterTransmission && v.transmission !== filterTransmission) return false;
@@ -225,6 +229,7 @@ export default function DashboardClient({ initialVehicles }: { initialVehicles: 
     vehicles,
     filterBrand,
     filterModel,
+    filterBody,
     filterFuel,
     filterColor,
     filterTransmission,
@@ -240,6 +245,7 @@ export default function DashboardClient({ initialVehicles }: { initialVehicles: 
   function resetFilters() {
     setFilterBrand("");
     setFilterModel("");
+    setFilterBody("");
     setFilterFuel("");
     setFilterColor("");
     setFilterTransmission("");
@@ -255,6 +261,7 @@ export default function DashboardClient({ initialVehicles }: { initialVehicles: 
   const filtersActive =
     filterBrand ||
     filterModel ||
+    filterBody ||
     filterFuel ||
     filterColor ||
     filterTransmission ||
@@ -423,6 +430,25 @@ export default function DashboardClient({ initialVehicles }: { initialVehicles: 
             >
               <option value="">Model</option>
               {modelOptions.map((o) => (
+                <option key={o} value={o}>
+                  {o}
+                </option>
+              ))}
+            </select>
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "#8A929C" }}>
+              <ChevronIcon />
+            </span>
+          </div>
+
+          <div className="relative shrink-0">
+            <select
+              value={filterBody}
+              onChange={(e) => setFilterBody(e.target.value)}
+              className="px-4 py-2 pr-8 rounded-full text-xs border shrink-0 cursor-pointer"
+              style={selectStyle}
+            >
+              <option value="">Carrosserie</option>
+              {bodyOptions.map((o) => (
                 <option key={o} value={o}>
                   {o}
                 </option>
