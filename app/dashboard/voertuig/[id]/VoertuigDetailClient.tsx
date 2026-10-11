@@ -83,6 +83,18 @@ function PdfIcon() {
   );
 }
 
+// De BPM-disclaimer staat op één plek, zodat pagina en PDF altijd dezelfde tekst tonen.
+function maakBpmDisclaimer(bron: string, peildatum: string | null): string {
+  return (
+    `Indicatieve berekening volgens ${bron}` +
+    (peildatum ? `, peildatum ${peildatum}` : "") +
+    ". Voor de BPM bij import zijn meerdere berekeningsmethoden toegestaan (forfaitaire afschrijvingstabel, " +
+    "koerslijst of taxatierapport), waardoor het definitieve bedrag kan afwijken. BPM-tarieven kunnen bovendien " +
+    "jaarlijks wijzigen. Dit is geen definitieve berekening: de koper dient de definitieve BPM zelf te (laten) " +
+    "berekenen. Aan deze indicatie kunnen geen rechten worden ontleend."
+  );
+}
+
 export default function VoertuigDetailClient({ id }: { id: string }) {
   const router = useRouter();
 
@@ -235,6 +247,8 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
     const textGrey: [number, number, number] = [120, 120, 120];
     const lineGrey: [number, number, number] = [225, 225, 225];
 
+    const hasBpm = vehicle.bpm_indicatie != null;
+
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 15;
@@ -274,7 +288,7 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
       if (image) {
         try {
           const maxImgWidth = pageWidth - margin * 2;
-          const maxImgHeight = 72;
+          const maxImgHeight = hasBpm ? 60 : 72;
           const aspectRatio = image.width / image.height;
 
           let imgWidth = maxImgWidth;
@@ -296,7 +310,7 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
     // Miniaturenrij: toont tot 4 overige foto's naast elkaar onder de hoofdfoto
     const remainingPhotos = photos.slice(1, 5); // foto 2 t/m 5
     if (remainingPhotos.length > 0) {
-      const thumbHeight = 24;
+      const thumbHeight = hasBpm ? 19 : 24;
       const gap = 4;
       const totalWidth = pageWidth - margin * 2;
       const slotWidth = (totalWidth - gap * (remainingPhotos.length - 1)) / remainingPhotos.length;
@@ -334,7 +348,7 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
         doc.setFont("helvetica", "normal");
         doc.setFontSize(7);
         doc.setTextColor(...textGrey);
-        doc.text(`+${extraCount} meer op aanvraag`, pageWidth - margin, y + thumbHeight + 5, {
+        doc.text(`+${extraCount} meer op aanvraag`, pageWidth - margin, y + thumbHeight + 3.5, {
           align: "right",
         });
       }
@@ -383,6 +397,8 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
       ["Land van herkomst", vehicle.country || "-"],
       ["CO2-uitstoot", vehicle.co2 ? vehicle.co2 + " g/km" : "-"],
     ];
+    if (vehicle.body_type) specs.push(["Carrosserie", vehicle.body_type]);
+    if (vehicle.vin) specs.push(["Chassisnummer (VIN)", vehicle.vin]);
 
     const colWidth = (pageWidth - margin * 2) / 3;
     specs.forEach(([label, value], i) => {
@@ -404,6 +420,42 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
 
     y += Math.ceil(specs.length / 3) * 16 + 8;
 
+    // Indicatieve BPM met disclaimer (alleen als er een bedrag is ingevuld)
+    if (hasBpm) {
+      const boxWidth = pageWidth - margin * 2;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(6.5);
+      const disclaimerLines: string[] = doc.splitTextToSize(
+        maakBpmDisclaimer(BPM_BRON, bpmPeildatumFormatted),
+        boxWidth - 8
+      );
+      const lineHeight = (6.5 * doc.getLineHeightFactor()) / doc.internal.scaleFactor;
+      const boxHeight = 11 + disclaimerLines.length * lineHeight + 2;
+
+      doc.setDrawColor(...lineGrey);
+      doc.setLineWidth(0.3);
+      doc.rect(margin, y, boxWidth, boxHeight);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(...blueLight);
+      doc.text("INDICATIEVE BPM BIJ IMPORT", margin + 4, y + 6);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(...textDark);
+      doc.text("EUR " + Number(vehicle.bpm_indicatie).toLocaleString("nl-NL"), pageWidth - margin - 4, y + 6, {
+        align: "right",
+      });
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(6.5);
+      doc.setTextColor(...textGrey);
+      doc.text(disclaimerLines, margin + 4, y + 11);
+
+      y += boxHeight + 6;
+    }
+
     // Call-to-action balk (blauw i.p.v. zwart, smal = weinig inktverbruik)
     doc.setFillColor(...blueDark);
     doc.rect(margin, y, pageWidth - margin * 2, 12, "F");
@@ -413,7 +465,7 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
     doc.text("Interesse? Neem contact op via infocaronix@gmail.com", pageWidth / 2, y + 8, {
       align: "center",
     });
-    y += 22;
+    y += hasBpm ? 18 : 22;
 
     // Footer
     doc.setDrawColor(...lineGrey);
@@ -622,11 +674,11 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
                 </div>
               )}
               {vehicle.vin && (
-                <div>
+                <div className="col-span-2 min-w-0">
                   <div className="text-xs mb-1" style={{ color: "#8A929C" }}>
                     Chassisnummer (VIN)
                   </div>
-                  <div className="tracking-wide break-all" style={{ color: "#F2F3F4" }}>
+                  <div className="tracking-wide break-all select-all" style={{ color: "#F2F3F4" }}>
                     {vehicle.vin}
                   </div>
                 </div>
@@ -645,13 +697,7 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
                   EUR {Number(vehicle.bpm_indicatie).toLocaleString("nl-NL")}
                 </div>
                 <p className="text-[11px] mt-2 leading-relaxed" style={{ color: "#6E7680" }}>
-                  Indicatieve berekening volgens {BPM_BRON}
-                  {bpmPeildatumFormatted ? `, peildatum ${bpmPeildatumFormatted}` : ""}. Voor de BPM bij
-                  import zijn meerdere berekeningsmethoden toegestaan (forfaitaire afschrijvingstabel,
-                  koerslijst of taxatierapport), waardoor het definitieve bedrag kan afwijken. BPM-tarieven
-                  kunnen bovendien jaarlijks wijzigen. Dit is geen definitieve berekening: de koper dient
-                  de definitieve BPM zelf te (laten) berekenen. Aan deze indicatie kunnen geen rechten
-                  worden ontleend.
+                  {maakBpmDisclaimer(BPM_BRON, bpmPeildatumFormatted)}
                 </p>
               </div>
             )}
