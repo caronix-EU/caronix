@@ -44,8 +44,8 @@ export default function PrivacybeleidPage() {
         <p className="mb-6">
           Caronix is verantwoordelijk voor de verwerking van persoonsgegevens zoals beschreven in
           dit privacybeleid. Voor vragen kun je contact opnemen via{" "}
-          <a href="mailto:infocaronix@gmail.com" className="underline" style={{ color: "#7FA8D9" }}>
-            infocaronix@gmail.com
+          <a href="mailto:info@caronix.nl" className="underline" style={{ color: "#7FA8D9" }}>
+            info@caronix.nl
           </a>
           .
         </p>
@@ -106,8 +106,8 @@ export default function PrivacybeleidPage() {
         </ul>
         <p className="mb-6">
           Je kunt hiervoor contact met ons opnemen via{" "}
-          <a href="mailto:infocaronix@gmail.com" className="underline" style={{ color: "#7FA8D9" }}>
-            infocaronix@gmail.com
+          <a href="mailto:info@caronix.nl" className="underline" style={{ color: "#7FA8D9" }}>
+            info@caronix.nl
           </a>
           . Ook heb je het recht om een klacht in te dienen bij de Autoriteit Persoonsgegevens.
         </p>

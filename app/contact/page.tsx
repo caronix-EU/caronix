@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 export default function ContactPage() {
-  const email = "infocaronix@gmail.com";
+  const email = "info@caronix.nl";
 
   const chrome: React.CSSProperties = {
     backgroundImage:

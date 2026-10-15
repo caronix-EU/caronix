@@ -192,7 +192,7 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
       })
     : null;
 
-  const mailtoLink = `mailto:infocaronix@gmail.com?subject=${encodeURIComponent(mailSubject)}`;
+  const mailtoLink = `mailto:info@caronix.nl?subject=${encodeURIComponent(mailSubject)}`;
 
   const pageUrl = typeof window !== "undefined" ? window.location.href : "";
   const whatsappMessage = `Bekijk deze ${vehicle.brand} ${vehicle.model} bij Caronix: ${pageUrl}`;
@@ -462,7 +462,7 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.setTextColor(255, 255, 255);
-    doc.text("Interesse? Neem contact op via infocaronix@gmail.com", pageWidth / 2, y + 8, {
+    doc.text("Interesse? Neem contact op via info@caronix.nl", pageWidth / 2, y + 8, {
       align: "center",
     });
     y += hasBpm ? 18 : 22;

@@ -122,8 +122,8 @@ export default function VoorwaardenPage() {
         </h2>
         <p className="mb-6">
           Vragen over deze voorwaarden kun je sturen naar{" "}
-          <a href="mailto:infocaronix@gmail.com" className="underline" style={{ color: "#7FA8D9" }}>
-            infocaronix@gmail.com
+          <a href="mailto:info@caronix.nl" className="underline" style={{ color: "#7FA8D9" }}>
+            info@caronix.nl
           </a>
           .
         </p>
