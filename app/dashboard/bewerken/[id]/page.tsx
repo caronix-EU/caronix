@@ -13,6 +13,7 @@ export default function BewerkVoertuigPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
+  const [nummer, setNummer] = useState("");
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
   const [uitvoering, setUitvoering] = useState("");
@@ -47,6 +48,7 @@ export default function BewerkVoertuigPage() {
         setLoading(false);
         return;
       }
+      setNummer(data.voertuignummer ? String(data.voertuignummer) : "");
       setBrand(data.brand || "");
       setModel(data.model || "");
       setUitvoering(data.uitvoering || "");
@@ -115,6 +117,7 @@ export default function BewerkVoertuigPage() {
       const { error: updateError } = await supabase
         .from("vehicles")
         .update({
+          voertuignummer: Number(nummer),
           brand,
           model,
           uitvoering,
@@ -143,9 +146,13 @@ export default function BewerkVoertuigPage() {
       if (updateError) throw updateError;
 
       setSuccess(true);
-      setTimeout(() => router.push("/dashboard"), 1000);
+      setTimeout(() => router.push("/voorraad"), 1000);
     } catch (err: any) {
-      setError(err.message || "Er ging iets mis.");
+      setError(
+        String(err.message || "").includes("voertuignummer")
+          ? "Dit voertuignummer is al in gebruik bij een andere auto. Kies een ander nummer."
+          : err.message || "Er ging iets mis."
+      );
     } finally {
       setSaving(false);
     }
@@ -169,7 +176,7 @@ export default function BewerkVoertuigPage() {
     return (
       <div className="min-h-screen w-full flex flex-col items-center justify-center gap-4" style={{ backgroundColor: "#08090B" }}>
         <p style={{ color: "#7A828C" }}>Dit voertuig kon niet gevonden worden.</p>
-        <a href="/dashboard" style={{ color: "#7FA8D9" }}>← Terug naar aanbod</a>
+        <a href="/voorraad" style={{ color: "#7FA8D9" }}>← Terug naar aanbod</a>
       </div>
     );
   }
@@ -177,10 +184,10 @@ export default function BewerkVoertuigPage() {
   return (
     <div className="min-h-screen w-full" style={{ backgroundColor: "#08090B" }}>
       <div className="flex items-center justify-between px-6 md:px-10 py-4 border-b" style={{ borderColor: "#1E2126" }}>
-        <a href="/dashboard" className="text-lg tracking-tight" style={{ color: "#F2F3F4", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
+        <a href="/voorraad" className="text-lg tracking-tight" style={{ color: "#F2F3F4", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
           CARONIX
         </a>
-        <a href="/dashboard" className="text-sm" style={{ color: "#8A929C" }}>← Terug naar aanbod</a>
+        <a href="/voorraad" className="text-sm" style={{ color: "#8A929C" }}>← Terug naar aanbod</a>
       </div>
 
       <div className="px-6 md:px-10 py-8 max-w-2xl mx-auto">
@@ -193,6 +200,16 @@ export default function BewerkVoertuigPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="sm:col-span-2">
+              <label className={labelClass} style={labelStyle}>Voertuignummer</label>
+              <div className={fieldWrap + " flex items-center gap-2"} style={fieldBorder}>
+                <span className="text-sm" style={{ color: "#8A929C" }}>CX-</span>
+                <input required type="number" min={1} value={nummer} onChange={(e) => setNummer(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} />
+              </div>
+              <p className="text-[11px] mt-1" style={{ color: "#5B6570" }}>
+                Staat in de link van deze auto. Let op: verander je het nummer, dan werken links die je al hebt gedeeld niet meer.
+              </p>
+            </div>
             <div>
               <label className={labelClass} style={labelStyle}>Merk</label>
               <div className={fieldWrap} style={fieldBorder}>

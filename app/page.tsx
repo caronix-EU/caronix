@@ -79,7 +79,7 @@ export default function LoginPage() {
       >
         <div className="flex justify-end items-center gap-3 p-6 md:p-8">
           <Link
-            href="/dashboard"
+            href="/voorraad"
             className="text-xs px-3 py-1.5 rounded-full border transition-colors"
             style={{ borderColor: "#2A2E34", color: "#8FA0B8" }}
           >

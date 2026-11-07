@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "../lib/supabaseClient";
+import { maakSlug } from "../lib/voertuigSlug";
 
 type Auto = {
   id: number;
+  voertuignummer: number;
   brand: string;
   model: string;
   uitvoering: string | null;
@@ -23,7 +25,7 @@ export default function BeschikbareAutos() {
     async function laden() {
       const { data } = await supabase
         .from("vehicles")
-        .select("id, brand, model, uitvoering, price, btw_type, photo_urls")
+        .select("id, voertuignummer, brand, model, uitvoering, price, btw_type, photo_urls")
         .order("created_at", { ascending: false })
         .limit(3);
 
@@ -49,7 +51,7 @@ export default function BeschikbareAutos() {
         {autos.map((auto) => (
           <Link
             key={auto.id}
-            href={"/dashboard/voertuig/" + auto.id}
+            href={"/voorraad/" + maakSlug(auto.brand, auto.model, auto.voertuignummer)}
             className="block rounded-md overflow-hidden border"
             style={{ backgroundColor: "#0E1013", borderColor: "#1E2126" }}
           >

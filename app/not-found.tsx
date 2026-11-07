@@ -44,7 +44,7 @@ export default function NotFound() {
           </p>
 
           <Link
-            href="/dashboard"
+            href="/voorraad"
             className="inline-block px-8 py-3 rounded-sm text-sm"
             style={{ backgroundColor: "#2E5A94", color: "#F2F3F4" }}
           >

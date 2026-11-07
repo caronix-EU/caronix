@@ -97,7 +97,7 @@ export default function NieuwVoertuigPage() {
       if (insertError) throw insertError;
 
       setSuccess(true);
-      setTimeout(() => router.push("/dashboard"), 1200);
+      setTimeout(() => router.push("/voorraad"), 1200);
     } catch (err: any) {
       setError(err.message || "Er ging iets mis.");
     } finally {
@@ -114,10 +114,10 @@ export default function NieuwVoertuigPage() {
   return (
     <div className="min-h-screen w-full" style={{ backgroundColor: "#08090B" }}>
       <div className="flex items-center justify-between px-6 md:px-10 py-4 border-b" style={{ borderColor: "#1E2126" }}>
-        <a href="/dashboard" className="text-lg tracking-tight" style={{ color: "#F2F3F4", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
+        <a href="/voorraad" className="text-lg tracking-tight" style={{ color: "#F2F3F4", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
           CARONIX
         </a>
-        <a href="/dashboard" className="text-sm" style={{ color: "#8A929C" }}>
+        <a href="/voorraad" className="text-sm" style={{ color: "#8A929C" }}>
           ← Terug naar aanbod
         </a>
       </div>
