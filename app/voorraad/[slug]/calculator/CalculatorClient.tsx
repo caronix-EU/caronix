@@ -97,7 +97,6 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
   let margeTekst = "–";
   let margePctTekst = "–";
   let opslagTekst = "–";
-  let maxBodTekst = "–";
   let margeNegatief = false;
   if (rp > 0) {
     const m = rp - tot;
@@ -105,9 +104,6 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
     margeTekst = fmt(m);
     margePctTekst = procent((m / rp) * 100);
     opslagTekst = tot > 0 ? procent((m / tot) * 100) : "–";
-    const vast = tr + n(reg) + n(tax) + n(oth);
-    const maxh = (rp * 0.92 - vast) / (1 + feePct / 100);
-    maxBodTekst = maxh > 0 ? fmt(maxh) : "–";
   }
   const margeKleur = rp > 0 ? (margeNegatief ? NEGATIEF : POSITIEF) : "#F2F3F4";
   // --- Einde rekenlogica ---
@@ -419,14 +415,6 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
                 {opslagTekst}
               </p>
             </div>
-          </div>
-
-          <div
-            className="flex justify-between items-center mt-4 pt-3 border-t text-sm"
-            style={{ borderColor: "#1E2126", color: "#8A929C" }}
-          >
-            <span>Maximaal bod bij 8% marge</span>
-            <b style={{ color: "#F2F3F4" }}>{maxBodTekst}</b>
           </div>
         </div>
 
