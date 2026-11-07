@@ -1,0 +1,454 @@
+"use client";
+
+import { useState } from "react";
+import type { ReactNode } from "react";
+import Link from "next/link";
+
+// Hier gaan de offerte-aanvragen naartoe.
+const CONTACT = "info@caronix.nl";
+
+type CalcAuto = {
+  voertuignummer: number;
+  slug: string;
+  titel: string;
+  prijs: number;
+  fuel: string | null;
+  km: number | null;
+  registration: string | null;
+  foto: string | null;
+  provisie: number;
+  transport: number;
+  kenteken: number;
+  bpmBtw: number;
+  overig: number;
+};
+
+const KLEUREN = ["#7FA8D9", "#2E5A94", "#F0872A", "#A84F9C", "#8A929C", "#C9A227"];
+const POSITIEF = "#4CBF82";
+const NEGATIEF = "#FF7B6B";
+
+const inputClass =
+  "w-full px-3 py-3 rounded-md border text-base focus:outline-none focus:ring-2 focus:ring-[#2E5A94] disabled:cursor-not-allowed";
+const inputStyle = { backgroundColor: "#08090B", borderColor: "#2A2E34", color: "#F2F3F4" };
+const lockedStyle = { ...inputStyle, opacity: 0.6 };
+
+// Geldbedrag in hele euro's, Nederlandse notatie (zoals in het oorspronkelijke bestand).
+function fmt(v: number): string {
+  try {
+    return new Intl.NumberFormat("nl-NL", {
+      style: "currency",
+      currency: "EUR",
+      maximumFractionDigits: 0,
+    }).format(v);
+  } catch {
+    return String(Math.round(v));
+  }
+}
+
+// Leest een invulveld als getal; leeg of ongeldig telt als 0.
+function n(v: string): number {
+  const x = parseFloat(v);
+  return isNaN(x) ? 0 : x;
+}
+
+function procent(v: number): string {
+  return v.toFixed(1).replace(".", ",") + "%";
+}
+
+function Veld({ id, label, children }: { id: string; label: string; children: ReactNode }) {
+  return (
+    <div>
+      <label htmlFor={id} className="block text-[13px] mb-1" style={{ color: "#8A929C" }}>
+        {label}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
+  // Invulbaar door de bezoeker. Het bod begint bij de vraagprijs.
+  const [bod, setBod] = useState(String(auto.prijs));
+  const [reg, setReg] = useState(String(auto.kenteken));
+  const [tax, setTax] = useState(String(auto.bpmBtw));
+  const [oth, setOth] = useState(String(auto.overig));
+  const [verkoop, setVerkoop] = useState("");
+
+  // Vast per auto (komt uit de database, de bezoeker kan dit niet wijzigen).
+  const feePct = auto.provisie;
+  const tr = auto.transport;
+
+  // --- Rekenlogica (ongewijzigd t.o.v. het oorspronkelijke bestand) ---
+  const h = n(bod);
+  const fee = (h * feePct) / 100;
+  const parts: [string, number][] = [
+    ["Bod", h],
+    ["Provisie Caronix (" + String(feePct).replace(".", ",") + "% van bod)", fee],
+    ["Transport", tr],
+    ["Kentekenvoorbereiding", n(reg)],
+    ["BPM/btw", n(tax)],
+    ["Overig", n(oth)],
+  ];
+  const tot = parts.reduce((s, p) => s + p[1], 0);
+
+  const rp = n(verkoop);
+  let margeTekst = "–";
+  let margePctTekst = "–";
+  let opslagTekst = "–";
+  let maxBodTekst = "–";
+  let margeNegatief = false;
+  if (rp > 0) {
+    const m = rp - tot;
+    margeNegatief = m < 0;
+    margeTekst = fmt(m);
+    margePctTekst = procent((m / rp) * 100);
+    opslagTekst = tot > 0 ? procent((m / tot) * 100) : "–";
+    const vast = tr + n(reg) + n(tax) + n(oth);
+    const maxh = (rp * 0.92 - vast) / (1 + feePct / 100);
+    maxBodTekst = maxh > 0 ? fmt(maxh) : "–";
+  }
+  const margeKleur = rp > 0 ? (margeNegatief ? NEGATIEF : POSITIEF) : "#F2F3F4";
+  // --- Einde rekenlogica ---
+
+  const registratieTekst = auto.registration
+    ? new Date(auto.registration).toLocaleDateString("nl-NL", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+    : null;
+
+  const blokjes: { label: string; waarde: string }[] = [];
+  if (auto.fuel) blokjes.push({ label: "Brandstof", waarde: auto.fuel });
+  if (auto.km) blokjes.push({ label: "Kilometerstand", waarde: auto.km.toLocaleString("nl-NL") + " km" });
+  if (registratieTekst) blokjes.push({ label: "1e registratie", waarde: registratieTekst });
+
+  const autoUrl = `https://www.caronix.nl/voorraad/${auto.slug}/calculator`;
+  const mailTekst =
+    "Kostprijsberekening via Caronix\n" +
+    `Auto: ${auto.titel} (CX-${auto.voertuignummer})\n` +
+    `Link: ${autoUrl}\n` +
+    "Bestemming: Nederland\n" +
+    parts.map((p) => p[0] + ": €" + Math.round(p[1])).join("\n") +
+    "\nTotaal landed: €" +
+    Math.round(tot) +
+    "\n\nMijn gegevens (naam/bedrijf/telefoon):";
+  const mailLink =
+    `mailto:${CONTACT}?subject=` +
+    encodeURIComponent(`Offerte aanvraag - ${auto.titel} - CX-${auto.voertuignummer}`) +
+    "&body=" +
+    encodeURIComponent(mailTekst);
+
+  const kaart = { backgroundColor: "#0E1013", borderColor: "#1E2126" };
+
+  return (
+    <div className="min-h-screen w-full" style={{ backgroundColor: "#08090B" }}>
+      {/* Navbar (zelfde als op de voertuigpagina) */}
+      <div
+        className="flex items-center justify-between px-6 md:px-10 py-4 border-b"
+        style={{ borderColor: "#1E2126" }}
+      >
+        <Link
+          href="/"
+          className="text-lg tracking-tight"
+          style={{ color: "#F2F3F4", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}
+        >
+          CARONIX
+        </Link>
+        <Link
+          href={`/voorraad/${auto.slug}`}
+          className="text-sm"
+          style={{ color: "#8A929C" }}
+        >
+          ← Terug naar voertuig
+        </Link>
+      </div>
+
+      <div className="px-4 md:px-6 py-6 max-w-xl mx-auto">
+        <h1
+          className="text-2xl mb-1"
+          style={{ color: "#F2F3F4", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600 }}
+        >
+          Weet wat uw import echt kost
+        </h1>
+        <p className="text-sm mb-5" style={{ color: "#8A929C" }}>
+          Weet vóór u biedt wat de auto werkelijk kost en wat u eraan verdient.
+        </p>
+
+        {/* Autokaart */}
+        <div className="rounded-lg border overflow-hidden mb-3" style={kaart}>
+          {auto.foto && (
+            <img
+              src={auto.foto}
+              alt={auto.titel}
+              className="w-full block object-cover"
+              style={{ maxHeight: 280 }}
+            />
+          )}
+          <div className="p-4">
+            <h2
+              className="text-lg"
+              style={{ color: "#F2F3F4", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600 }}
+            >
+              {auto.titel}
+            </h2>
+            <p className="text-sm mt-0.5" style={{ color: "#8A929C" }}>
+              Vraagprijs: {fmt(auto.prijs)}
+            </p>
+            <div className="text-xs mt-1" style={{ color: "#6E7680" }}>
+              Voertuignummer CX-{auto.voertuignummer}
+            </div>
+            {blokjes.length > 0 && (
+              <div className="grid grid-cols-3 gap-2 mt-3">
+                {blokjes.map((b) => (
+                  <div
+                    key={b.label}
+                    className="rounded-md border px-2 py-2"
+                    style={{ borderColor: "#1E2126", backgroundColor: "#08090B" }}
+                  >
+                    <div className="text-[11px]" style={{ color: "#8A929C" }}>
+                      {b.label}
+                    </div>
+                    <div className="text-sm" style={{ color: "#F2F3F4" }}>
+                      {b.waarde}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Invoer */}
+        <div className="rounded-lg border p-4 mb-3" style={kaart}>
+          <Veld id="bod" label="Uw bod in € (startpunt is de vraagprijs)">
+            <input
+              id="bod"
+              type="number"
+              inputMode="decimal"
+              value={bod}
+              onChange={(e) => setBod(e.target.value)}
+              className={inputClass}
+              style={inputStyle}
+            />
+          </Veld>
+          <div className="flex gap-2 flex-wrap mt-2 mb-3">
+            {[500, 250, 100, 50].map((v) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => setBod(String(Math.max(0, n(bod) - v)))}
+                className="px-3.5 py-2 rounded-full border text-sm"
+                style={{ borderColor: "#2A2E34", color: "#F2F3F4", backgroundColor: "#0E1013" }}
+              >
+                − €{v}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <Veld id="fee" label="Provisie Caronix %">
+              <input
+                id="fee"
+                type="number"
+                value={feePct}
+                readOnly
+                disabled
+                className={inputClass}
+                style={lockedStyle}
+              />
+            </Veld>
+            <Veld id="land" label="Bestemming">
+              <input
+                id="land"
+                value="Nederland"
+                readOnly
+                disabled
+                className={inputClass}
+                style={lockedStyle}
+              />
+            </Veld>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <Veld id="tr" label="Transport €">
+              <input
+                id="tr"
+                type="number"
+                value={tr}
+                readOnly
+                disabled
+                className={inputClass}
+                style={lockedStyle}
+              />
+            </Veld>
+            <Veld id="reg" label="Kentekenvoorbereiding €">
+              <input
+                id="reg"
+                type="number"
+                inputMode="decimal"
+                value={reg}
+                onChange={(e) => setReg(e.target.value)}
+                className={inputClass}
+                style={inputStyle}
+              />
+            </Veld>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Veld id="tax" label="BPM/btw €">
+              <input
+                id="tax"
+                type="number"
+                inputMode="decimal"
+                value={tax}
+                onChange={(e) => setTax(e.target.value)}
+                className={inputClass}
+                style={inputStyle}
+              />
+            </Veld>
+            <Veld id="oth" label="Overig (reparatie e.d.) €">
+              <input
+                id="oth"
+                type="number"
+                inputMode="decimal"
+                value={oth}
+                onChange={(e) => setOth(e.target.value)}
+                className={inputClass}
+                style={inputStyle}
+              />
+            </Veld>
+          </div>
+
+          <p className="text-xs mt-3" style={{ color: "#6E7680" }}>
+            Voorgesteld door Caronix: kenteken {fmt(auto.kenteken)}, BPM/btw {fmt(auto.bpmBtw)}, overig{" "}
+            {fmt(auto.overig)}. U kunt deze bedragen zelf aanpassen.
+          </p>
+        </div>
+
+        {/* Totale inkoopkosten */}
+        <div className="rounded-lg border p-4 mb-3" style={kaart}>
+          <p
+            className="text-4xl text-right"
+            style={{ color: "#7FA8D9", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}
+          >
+            {fmt(tot)}
+          </p>
+          <div className="text-sm text-right" style={{ color: "#8A929C" }}>
+            Uw totale inkoopkosten, klaar voor verkoop
+          </div>
+
+          <div
+            className="flex h-3.5 rounded-lg overflow-hidden my-3"
+            style={{ backgroundColor: "#1E2126" }}
+            aria-hidden="true"
+          >
+            {tot > 0 &&
+              parts.map((p, i) => (
+                <div key={i} style={{ width: (p[1] / tot) * 100 + "%", backgroundColor: KLEUREN[i] }} />
+              ))}
+          </div>
+          <div className="text-sm mb-1" style={{ color: "#8A929C" }}>
+            Aandeel in totale inkoopkosten
+          </div>
+
+          <div>
+            {parts
+              .map((p, i) => ({ p, i }))
+              .filter(({ p }) => p[1] > 0)
+              .map(({ p, i }) => (
+                <div
+                  key={i}
+                  className="flex justify-between items-center py-2 text-[15px] border-b last:border-b-0"
+                  style={{ borderColor: "#1E2126", color: "#F2F3F4" }}
+                >
+                  <span className="flex items-center">
+                    <i
+                      className="inline-block rounded-sm mr-2"
+                      style={{ width: 11, height: 11, backgroundColor: KLEUREN[i] }}
+                    />
+                    {p[0]}
+                  </span>
+                  <span>
+                    {fmt(p[1])} <span style={{ color: "#8A929C" }}>{procent((p[1] / tot) * 100)}</span>
+                  </span>
+                </div>
+              ))}
+          </div>
+        </div>
+
+        {/* Verkoop en marge */}
+        <div className="rounded-lg border p-4 mb-4" style={kaart}>
+          <Veld id="rp" label="Verwachte verkoopprijs in €">
+            <input
+              id="rp"
+              type="number"
+              inputMode="decimal"
+              placeholder="0"
+              value={verkoop}
+              onChange={(e) => setVerkoop(e.target.value)}
+              className={inputClass}
+              style={inputStyle}
+            />
+          </Veld>
+
+          <div className="grid grid-cols-3 gap-2 mt-4">
+            <div>
+              <div className="text-xs" style={{ color: "#8A929C" }}>
+                Marge
+              </div>
+              <p className="text-lg font-bold mt-1" style={{ color: margeKleur }}>
+                {margeTekst}
+              </p>
+            </div>
+            <div>
+              <div className="text-xs" style={{ color: "#8A929C" }}>
+                Marge % v. verkoop
+              </div>
+              <p className="text-lg font-bold mt-1" style={{ color: margeKleur }}>
+                {margePctTekst}
+              </p>
+            </div>
+            <div>
+              <div className="text-xs" style={{ color: "#8A929C" }}>
+                Opslag % op inkoop
+              </div>
+              <p className="text-lg font-bold mt-1" style={{ color: margeKleur }}>
+                {opslagTekst}
+              </p>
+            </div>
+          </div>
+
+          <div
+            className="flex justify-between items-center mt-4 pt-3 border-t text-sm"
+            style={{ borderColor: "#1E2126", color: "#8A929C" }}
+          >
+            <span>Maximaal bod bij 8% marge</span>
+            <b style={{ color: "#F2F3F4" }}>{maxBodTekst}</b>
+          </div>
+        </div>
+
+        <a
+          href={mailLink}
+          className="block w-full text-center py-3.5 rounded-md text-base font-semibold"
+          style={{ backgroundColor: "#2E5A94", color: "#F2F3F4" }}
+        >
+          Vraag een offerte aan bij Caronix
+        </a>
+
+        <p className="text-xs mt-3" style={{ color: "#6E7680" }}>
+          Indicatieve berekening, geen offerte. Belastingen en overige kosten zijn hier invulbaar;
+          controleer deze altijd vooraf.
+        </p>
+
+        <div
+          className="flex gap-4 text-xs mt-8 pt-4 border-t"
+          style={{ borderColor: "#1E2126", color: "#6E7680" }}
+        >
+          <Link href="/voorwaarden">Voorwaarden</Link>
+          <Link href="/privacybeleid">Privacybeleid</Link>
+        </div>
+      </div>
+    </div>
+  );
+}

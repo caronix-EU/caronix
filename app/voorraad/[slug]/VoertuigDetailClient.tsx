@@ -85,6 +85,15 @@ function PdfIcon() {
   );
 }
 
+function CalculatorIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+      <rect x="4" y="2" width="16" height="20" rx="2" />
+      <path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h.01M12 19h.01M16 19h.01" />
+    </svg>
+  );
+}
+
 // De BPM-disclaimer staat op één plek, zodat pagina en PDF altijd dezelfde tekst tonen.
 function maakBpmDisclaimer(bron: string, peildatum: string | null): string {
   return (
@@ -194,10 +203,13 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
       })
     : null;
 
-  const mailtoLink = `mailto:infocaronix@gmail.com?subject=${encodeURIComponent(mailSubject)}`;
+  const mailtoLink = `mailto:info@caronix.nl?subject=${encodeURIComponent(mailSubject)}`;
 
   // Vaste, nette link naar deze auto (zonder eventuele trackingcodes van Instagram/Facebook)
   const pageUrl = `https://www.caronix.nl/voorraad/${maakSlug(vehicle.brand, vehicle.model, vehicle.voertuignummer)}`;
+
+  // Link naar de kostprijscalculator van deze auto
+  const calculatorLink = `/voorraad/${maakSlug(vehicle.brand, vehicle.model, vehicle.voertuignummer)}/calculator`;
 
   // Bericht dat via WhatsApp wordt gedeeld: titelregel, korte zin en de link.
   const whatsappTitel = [vehicle.brand, vehicle.model, vehicle.uitvoering].filter(Boolean).join(" ");
@@ -468,7 +480,7 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.setTextColor(255, 255, 255);
-    doc.text("Interesse? Neem contact op via infocaronix@gmail.com", pageWidth / 2, y + 8, {
+    doc.text("Interesse? Neem contact op via info@caronix.nl", pageWidth / 2, y + 8, {
       align: "center",
     });
     y += hasBpm ? 18 : 22;
@@ -725,6 +737,15 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
               <MailIcon />
               Interesse? Neem contact op
             </a>
+
+            <Link
+              href={calculatorLink}
+              className="flex items-center justify-center gap-2 w-full py-3 mt-2 rounded-sm text-sm border"
+              style={{ borderColor: "#2E5A94", color: "#7FA8D9" }}
+            >
+              <CalculatorIcon />
+              Kostprijs berekenen
+            </Link>
 
             <div className="flex gap-2 mt-2">
               <a
