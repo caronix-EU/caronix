@@ -23,6 +23,9 @@ export default function NieuwVoertuigPage() {
   const [color, setColor] = useState("");
   const [transmission, setTransmission] = useState("");
   const [country, setCountry] = useState("");
+  const [calcProvisie, setCalcProvisie] = useState("1.3");
+  const [calcOverig, setCalcOverig] = useState("0");
+  const [calcVerkoop, setCalcVerkoop] = useState("");
 
   const [photos, setPhotos] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -92,6 +95,9 @@ export default function NieuwVoertuigPage() {
         transmission,
         country,
         photo_urls: photoUrls,
+        calc_provisie_pct: calcProvisie.trim() === "" ? 1.3 : Number(calcProvisie),
+        calc_overig: calcOverig.trim() === "" ? 0 : Number(calcOverig),
+        calc_verkoopprijs: calcVerkoop.trim() === "" ? null : Number(calcVerkoop),
       });
 
       if (insertError) throw insertError;
@@ -241,6 +247,38 @@ export default function NieuwVoertuigPage() {
               <label className={labelClass} style={labelStyle}>Land van herkomst</label>
               <div className={fieldWrap} style={fieldBorder}>
                 <input value={country} onChange={(e) => setCountry(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="Duitsland" />
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-md border p-4" style={{ borderColor: "#1E2126", backgroundColor: "#0E1013" }}>
+            <h2 className="text-base mb-1" style={{ color: "#F2F3F4", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600 }}>
+              Kostprijscalculator
+            </h2>
+            <p className="text-[11px] mb-4" style={{ color: "#5B6570" }}>
+              Deze bedragen staan vooraf ingevuld in de calculator die bezoekers bij deze auto zien. Het BPM-bedrag komt uit het veld BPM-indicatie hierboven.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div>
+                <label className={labelClass} style={labelStyle}>Provisie (%)</label>
+                <div className={fieldWrap} style={fieldBorder}>
+                  <input type="number" step="any" min="0" value={calcProvisie} onChange={(e) => setCalcProvisie(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="1.3" />
+                </div>
+                <p className="text-[11px] mt-1" style={{ color: "#5B6570" }}>Over het bod. Bezoeker kan dit niet wijzigen.</p>
+              </div>
+              <div>
+                <label className={labelClass} style={labelStyle}>Overig / reparatie (€)</label>
+                <div className={fieldWrap} style={fieldBorder}>
+                  <input type="number" step="any" min="0" value={calcOverig} onChange={(e) => setCalcOverig(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="0" />
+                </div>
+                <p className="text-[11px] mt-1" style={{ color: "#5B6570" }}>Bezoeker kan dit aanpassen.</p>
+              </div>
+              <div>
+                <label className={labelClass} style={labelStyle}>Verwachte verkoopprijs (€)</label>
+                <div className={fieldWrap} style={fieldBorder}>
+                  <input type="number" step="any" min="0" value={calcVerkoop} onChange={(e) => setCalcVerkoop(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="Leeg laten = bezoeker vult zelf in" />
+                </div>
+                <p className="text-[11px] mt-1" style={{ color: "#5B6570" }}>Bezoeker kan dit aanpassen.</p>
               </div>
             </div>
           </div>

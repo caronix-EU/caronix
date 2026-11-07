@@ -21,6 +21,7 @@ type CalcAuto = {
   kenteken: number;
   bpmBtw: number;
   overig: number;
+  verkoopprijs: number | null;
 };
 
 const KLEUREN = ["#7FA8D9", "#2E5A94", "#F0872A", "#A84F9C", "#8A929C", "#C9A227"];
@@ -72,7 +73,8 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
   const [reg, setReg] = useState(String(auto.kenteken));
   const [tax, setTax] = useState(String(auto.bpmBtw));
   const [oth, setOth] = useState(String(auto.overig));
-  const [verkoop, setVerkoop] = useState("");
+  // Verwachte verkoopprijs: vooraf ingevuld door Caronix (indien bekend), de bezoeker kan hem aanpassen.
+  const [verkoop, setVerkoop] = useState(auto.verkoopprijs ? String(auto.verkoopprijs) : "");
 
   // Vast per auto (komt uit de database, de bezoeker kan dit niet wijzigen).
   const feePct = auto.provisie;
