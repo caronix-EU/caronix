@@ -26,6 +26,8 @@ export default function NieuwVoertuigPage() {
   const [calcProvisie, setCalcProvisie] = useState("1.3");
   const [calcOverig, setCalcOverig] = useState("0");
   const [calcVerkoop, setCalcVerkoop] = useState("");
+  const [calcTransport, setCalcTransport] = useState("595");
+  const [calcKenteken, setCalcKenteken] = useState("145");
 
   const [photos, setPhotos] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -98,6 +100,8 @@ export default function NieuwVoertuigPage() {
         calc_provisie_pct: calcProvisie.trim() === "" ? 1.3 : Number(calcProvisie),
         calc_overig: calcOverig.trim() === "" ? 0 : Number(calcOverig),
         calc_verkoopprijs: calcVerkoop.trim() === "" ? null : Number(calcVerkoop),
+        calc_transport: calcTransport.trim() === "" ? 595 : Number(calcTransport),
+        calc_kenteken: calcKenteken.trim() === "" ? 145 : Number(calcKenteken),
       });
 
       if (insertError) throw insertError;
@@ -277,6 +281,20 @@ export default function NieuwVoertuigPage() {
                 <label className={labelClass} style={labelStyle}>Verwachte verkoopprijs (€)</label>
                 <div className={fieldWrap} style={fieldBorder}>
                   <input type="number" step="any" min="0" value={calcVerkoop} onChange={(e) => setCalcVerkoop(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="Leeg laten = bezoeker vult zelf in" />
+                </div>
+                <p className="text-[11px] mt-1" style={{ color: "#5B6570" }}>Bezoeker kan dit aanpassen.</p>
+              </div>
+              <div>
+                <label className={labelClass} style={labelStyle}>Transport naar NL (€)</label>
+                <div className={fieldWrap} style={fieldBorder}>
+                  <input type="number" step="any" min="0" value={calcTransport} onChange={(e) => setCalcTransport(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="595" />
+                </div>
+                <p className="text-[11px] mt-1" style={{ color: "#5B6570" }}>Bezoeker kan dit niet wijzigen.</p>
+              </div>
+              <div>
+                <label className={labelClass} style={labelStyle}>Kentekenvoorbereiding (€)</label>
+                <div className={fieldWrap} style={fieldBorder}>
+                  <input type="number" step="any" min="0" value={calcKenteken} onChange={(e) => setCalcKenteken(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="145" />
                 </div>
                 <p className="text-[11px] mt-1" style={{ color: "#5B6570" }}>Bezoeker kan dit aanpassen.</p>
               </div>
