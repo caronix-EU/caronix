@@ -172,7 +172,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
         </Link>
       </div>
 
-      <div className="px-4 md:px-6 py-6 max-w-xl mx-auto">
+      <div className="px-4 md:px-6 pt-6 pb-28 md:pb-6 max-w-xl mx-auto">
         <h1
           className="text-2xl mb-1"
           style={{ color: "#F2F3F4", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600 }}
@@ -455,7 +455,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
 
         <a
           href={mailLink}
-          className="block w-full text-center py-3.5 rounded-md text-base font-semibold"
+          className="hidden md:block w-full text-center py-3.5 rounded-md text-base font-semibold"
           style={{ backgroundColor: "#2E5A94", color: "#F2F3F4" }}
         >
           Vraag een offerte aan bij Caronix
@@ -472,6 +472,44 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
         >
           <Link href="/voorwaarden">Voorwaarden</Link>
           <Link href="/privacybeleid">Privacybeleid</Link>
+        </div>
+      </div>
+
+      {/* Vaste balk onderaan op de telefoon: totaal, marge en offerteknop blijven in beeld */}
+      <div
+        className="md:hidden fixed bottom-0 inset-x-0 border-t px-4 pt-3"
+        style={{
+          backgroundColor: "#0E1013",
+          borderColor: "#1E2126",
+          paddingBottom: "max(12px, env(safe-area-inset-bottom, 0px))",
+        }}
+      >
+        <div className="flex items-center gap-3 max-w-xl mx-auto">
+          <div className="flex-1 min-w-0 grid grid-cols-2 gap-3">
+            <div>
+              <div className="text-[11px]" style={{ color: "#8A929C" }}>
+                Totaal inkoop
+              </div>
+              <div className="text-base font-bold truncate" style={{ color: "#7FA8D9" }}>
+                {fmt(tot)}
+              </div>
+            </div>
+            <div>
+              <div className="text-[11px]" style={{ color: "#8A929C" }}>
+                Marge
+              </div>
+              <div className="text-base font-bold truncate" style={{ color: margeKleur }}>
+                {rp > 0 ? margeTekst : "–"}
+              </div>
+            </div>
+          </div>
+          <a
+            href={mailLink}
+            className="shrink-0 px-4 py-3 rounded-md text-sm font-semibold"
+            style={{ backgroundColor: "#2E5A94", color: "#F2F3F4" }}
+          >
+            Offerte aanvragen
+          </a>
         </div>
       </div>
     </div>
