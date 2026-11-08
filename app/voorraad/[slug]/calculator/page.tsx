@@ -40,6 +40,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const eersteFoto = auto.photo_urls && auto.photo_urls.length > 0 ? auto.photo_urls[0] : null;
   const pad = `/voorraad/${maakSlug(auto.brand, auto.model, auto.voertuignummer)}/calculator`;
 
+  // Tekst van het voorbeeldkaartje dat WhatsApp en social media tonen bij het delen
+  const prijsTekst = auto.price ? `Vraagprijs € ${Number(auto.price).toLocaleString("nl-NL")}. ` : "";
+  const ogTitle = `${titel} - bereken wat het u kost`;
+  const ogDescription = `${prijsTekst}Bereken uw totale inkoopkosten en wat u eraan overhoudt. Indicatieve berekening van Caronix.`;
+
   return {
     title,
     description,
@@ -47,8 +52,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // De calculator is een gereedschap om te delen, geen pagina om in Google te vinden.
     robots: { index: false, follow: true },
     openGraph: {
-      title,
-      description,
+      title: ogTitle,
+      description: ogDescription,
       images: eersteFoto ? [{ url: eersteFoto, width: 1200, height: 800 }] : undefined,
     },
   };

@@ -155,6 +155,9 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
     "\nTotaal landed: €" +
     Math.round(tot) +
     "\n\nMijn gegevens (naam/bedrijf/telefoon):";
+  // Bericht voor WhatsApp: titelregel, korte zin en de link (zonder bedragen)
+  const waTekst = `${auto.titel}\nBekijk de kostprijsberekening bij Caronix:\n${autoUrl}`;
+  const waLink = `https://wa.me/?text=${encodeURIComponent(waTekst)}`;
   const mailLink =
     `mailto:${CONTACT}?subject=` +
     encodeURIComponent(`Bod op ${auto.titel} - CX-${auto.voertuignummer}`) +
@@ -504,6 +507,19 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
           style={{ backgroundColor: "#2E5A94", color: "#F2F3F4" }}
         >
           Breng een bod uit
+        </a>
+
+        <a
+          href={waLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-2 w-full py-3 mt-3 rounded-md text-sm border"
+          style={{ borderColor: "#2E5A94", color: "#7FA8D9" }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+            <path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-5.2A8.5 8.5 0 1 1 21 11.5z" />
+          </svg>
+          Deel via WhatsApp
         </a>
 
         <p className="text-xs mt-3" style={{ color: "#8A929C" }}>
