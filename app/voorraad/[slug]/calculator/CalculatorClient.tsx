@@ -28,6 +28,20 @@ type CalcAuto = {
 
 const KLEUREN = ["#7FA8D9", "#2E5A94", "#F0872A", "#A84F9C", "#8A929C", "#C9A227"];
 const POSITIEF = "#4CBF82";
+
+// Het proces vanaf het bod, zoals Caronix het hanteert.
+const STAPPEN = [
+  { titel: "U brengt een bod uit", tekst: "Via de knop sturen wij uw bod met deze berekening door." },
+  { titel: "Wij leggen het voor aan de verkoper", tekst: "Uw bod wordt aan de verkoper gecommuniceerd." },
+  {
+    titel: "Akkoord: bindend en toegewezen",
+    tekst: "Gaat de verkoper akkoord, dan is uw bod bindend en wordt het voertuig aan u toegewezen. U ontvangt de factuur en betaalt vóór het transport.",
+  },
+  {
+    titel: "Afwijzing of tegenbod",
+    tekst: "Wijst de verkoper af of doet hij een tegenbod? Dan krijgt u dat van ons terug.",
+  },
+];
 const NEGATIEF = "#FF7B6B";
 
 const inputClass =
@@ -453,6 +467,38 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
               </p>
             </div>
           </div>
+        </div>
+
+        <div className="rounded-lg border p-4 mb-4" style={kaart}>
+          <h2
+            className="text-base mb-3"
+            style={{ color: "#F2F3F4", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600 }}
+          >
+            Zo werkt het
+          </h2>
+          <ol className="space-y-3">
+            {STAPPEN.map((st, i) => (
+              <li key={st.titel} className="flex gap-3">
+                <span
+                  className="shrink-0 flex items-center justify-center rounded-full text-xs font-semibold"
+                  style={{ width: 24, height: 24, backgroundColor: "#2E5A94", color: "#F2F3F4" }}
+                >
+                  {i + 1}
+                </span>
+                <div>
+                  <div className="text-sm" style={{ color: "#F2F3F4", fontWeight: 600 }}>
+                    {st.titel}
+                  </div>
+                  <div className="text-xs mt-0.5" style={{ color: "#8A929C" }}>
+                    {st.tekst}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <p className="text-xs mt-3 pt-3 border-t" style={{ borderColor: "#1E2126", color: "#8A929C" }}>
+            Levering: ongeveer 3 tot 4 weken na betaling.
+          </p>
         </div>
 
         <a
