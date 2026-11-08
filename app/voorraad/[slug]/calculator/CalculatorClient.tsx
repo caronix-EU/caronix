@@ -400,7 +400,14 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
 
         {/* Verkoop en marge */}
         <div className="rounded-lg border p-4 mb-4" style={kaart}>
-          <Veld id="rp" label="Verwachte verkoopprijs in €">
+          <Veld
+            id="rp"
+            label={
+              auto.verkoopprijs
+                ? "Indicatieve verkoopprijs in € – Caronix inschatting"
+                : "Verwachte verkoopprijs in €"
+            }
+          >
             <input
               id="rp"
               type="number"
@@ -412,6 +419,11 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
               style={inputStyle}
             />
           </Veld>
+          <p className="text-xs mt-2" style={{ color: "#8A929C" }}>
+            {auto.verkoopprijs
+              ? "Dit bedrag is een indicatie van Caronix. U kunt het aanpassen aan uw eigen inzicht en marktkennis."
+              : "Vul hier uw eigen verwachte verkoopprijs in."}
+          </p>
 
           <div className="grid grid-cols-3 gap-2 mt-4">
             <div>
