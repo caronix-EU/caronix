@@ -253,6 +253,13 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
                 ))}
               </div>
             )}
+            <Link
+              href={`/voorraad/${auto.slug}`}
+              className="inline-block mt-3 text-sm underline"
+              style={{ color: "#7FA8D9" }}
+            >
+              Bekijk alle foto&apos;s en specificaties →
+            </Link>
           </div>
         </div>
 
