@@ -112,14 +112,12 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
   const rp = n(verkoop);
   let margeTekst = "–";
   let margePctTekst = "–";
-  let opslagTekst = "–";
   let margeNegatief = false;
   if (rp > 0) {
     const m = rp - tot;
     margeNegatief = m < 0;
     margeTekst = fmt(m);
     margePctTekst = procent((m / rp) * 100);
-    opslagTekst = tot > 0 ? procent((m / tot) * 100) : "–";
   }
   const margeKleur = rp > 0 ? (margeNegatief ? NEGATIEF : POSITIEF) : "#F2F3F4";
   // --- Einde rekenlogica ---
@@ -448,7 +446,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
               : "Vul hier uw eigen verwachte verkoopprijs in."}
           </p>
 
-          <div className="grid grid-cols-3 gap-2 mt-4">
+          <div className="grid grid-cols-2 gap-2 mt-4">
             <div>
               <div className="text-xs" style={{ color: "#8A929C" }}>
                 Marge
@@ -463,14 +461,6 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
               </div>
               <p className="text-lg font-bold mt-1" style={{ color: margeKleur }}>
                 {margePctTekst}
-              </p>
-            </div>
-            <div>
-              <div className="text-xs" style={{ color: "#8A929C" }}>
-                Opslag % op inkoop
-              </div>
-              <p className="text-lg font-bold mt-1" style={{ color: margeKleur }}>
-                {opslagTekst}
               </p>
             </div>
           </div>
