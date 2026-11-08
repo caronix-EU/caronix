@@ -22,6 +22,7 @@ type CalcAuto = {
   bpmBtw: number;
   overig: number;
   verkoopprijs: number | null;
+  btwType: string | null;
 };
 
 const KLEUREN = ["#7FA8D9", "#2E5A94", "#F0872A", "#A84F9C", "#8A929C", "#C9A227"];
@@ -88,7 +89,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
     ["Provisie Caronix (" + String(feePct).replace(".", ",") + "% van bod)", fee],
     ["Transport", tr],
     ["Kentekenvoorbereiding", n(reg)],
-    ["BPM/btw", n(tax)],
+    ["BPM", n(tax)],
     ["Overig", n(oth)],
   ];
   const tot = parts.reduce((s, p) => s + p[1], 0);
@@ -116,6 +117,14 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
       })
     : null;
 
+  // BTW-status van de auto (zelfde veld als op de voertuigpagina)
+  const btwInfo =
+    auto.btwType === "Marge"
+      ? { label: "Margeauto", uitleg: "Geen btw apart vermeld op de factuur." }
+      : auto.btwType === "Excl. BTW"
+      ? { label: "Excl. btw", uitleg: "Vraagprijs is exclusief btw." }
+      : null;
+
   const blokjes: { label: string; waarde: string }[] = [];
   if (auto.fuel) blokjes.push({ label: "Brandstof", waarde: auto.fuel });
   if (auto.km) blokjes.push({ label: "Kilometerstand", waarde: auto.km.toLocaleString("nl-NL") + " km" });
@@ -125,6 +134,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
   const mailTekst =
     "Kostprijsberekening via Caronix\n" +
     `Auto: ${auto.titel} (CX-${auto.voertuignummer})\n` +
+    (btwInfo ? `BTW-status: ${btwInfo.label}\n` : "") +
     `Link: ${autoUrl}\n` +
     "Bestemming: Nederland\n" +
     parts.map((p) => p[0] + ": €" + Math.round(p[1])).join("\n") +
@@ -196,6 +206,19 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
             <div className="text-xs mt-1" style={{ color: "#6E7680" }}>
               Voertuignummer CX-{auto.voertuignummer}
             </div>
+            {btwInfo && (
+              <div className="mt-2 flex items-center gap-2 flex-wrap">
+                <span
+                  className="text-xs px-2.5 py-1 rounded-full border"
+                  style={{ borderColor: "#2E5A94", color: "#7FA8D9" }}
+                >
+                  {btwInfo.label}
+                </span>
+                <span className="text-xs" style={{ color: "#8A929C" }}>
+                  {btwInfo.uitleg}
+                </span>
+              </div>
+            )}
             {blokjes.length > 0 && (
               <div className="grid grid-cols-3 gap-2 mt-3">
                 {blokjes.map((b) => (
@@ -294,7 +317,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Veld id="tax" label="BPM/btw €">
+            <Veld id="tax" label="BPM €">
               <input
                 id="tax"
                 type="number"
@@ -319,7 +342,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
           </div>
 
           <p className="text-xs mt-3" style={{ color: "#6E7680" }}>
-            Voorgesteld door Caronix: kenteken {fmt(auto.kenteken)}, BPM/btw {fmt(auto.bpmBtw)}, overig{" "}
+            Voorgesteld door Caronix: kenteken {fmt(auto.kenteken)}, BPM {fmt(auto.bpmBtw)}, overig{" "}
             {fmt(auto.overig)}. U kunt deze bedragen zelf aanpassen.
           </p>
         </div>
