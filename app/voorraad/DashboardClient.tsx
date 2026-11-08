@@ -71,6 +71,15 @@ function HomeIcon() {
   );
 }
 
+function CalculatorIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+      <rect x="4" y="2" width="16" height="20" rx="2" />
+      <path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h.01M12 19h.01M16 19h.01" />
+    </svg>
+  );
+}
+
 // Haalt unieke, niet-lege waarden op uit een lijst voertuigen voor een gegeven veld
 function uniqueValues(vehicles: Vehicle[], key: keyof Vehicle): string[] {
   const set = new Set<string>();
@@ -680,15 +689,17 @@ export default function DashboardClient({ initialVehicles }: { initialVehicles: 
                   style={{ background: "linear-gradient(135deg,#12151A,#1C2128)" }}
                 >
                   {photos.length > 0 ? (
-                    <img
-                      src={photos[currentIndex]}
-                      alt={v.brand + " " + v.model}
-                      className="w-full h-full object-contain cursor-zoom-in"
-                      onClick={() => {
-                        setEnlargedPhotos(photos);
-                        setEnlargedIndex(currentIndex);
-                      }}
-                    />
+                    <Link
+                      href={"/voorraad/" + maakSlug(v.brand, v.model, v.voertuignummer)}
+                      className="block w-full h-full"
+                      aria-label={"Bekijk " + v.brand + " " + v.model}
+                    >
+                      <img
+                        src={photos[currentIndex]}
+                        alt={v.brand + " " + v.model}
+                        className="w-full h-full object-contain"
+                      />
+                    </Link>
                   ) : (
                     <span className="text-xs" style={{ color: "#4E555E" }}>
                       Geen foto
@@ -784,8 +795,26 @@ export default function DashboardClient({ initialVehicles }: { initialVehicles: 
                     {v.co2 != null && <span>{v.co2} g/km</span>}
                   </div>
 
+                  <div className="flex gap-2 mt-4">
+                    <Link
+                      href={"/voorraad/" + maakSlug(v.brand, v.model, v.voertuignummer)}
+                      className="flex-1 flex items-center justify-center py-2.5 rounded-sm text-xs"
+                      style={{ backgroundColor: "#2E5A94", color: "#F2F3F4" }}
+                    >
+                      Bekijk voertuig
+                    </Link>
+                    <Link
+                      href={"/voorraad/" + maakSlug(v.brand, v.model, v.voertuignummer) + "/calculator"}
+                      className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-sm text-xs border"
+                      style={{ borderColor: "#2E5A94", color: "#7FA8D9" }}
+                    >
+                      <CalculatorIcon />
+                      Kostprijs berekenen
+                    </Link>
+                  </div>
+
                   {isLoggedIn && (
-                    <div className="flex gap-2 mt-4">
+                    <div className="flex gap-2 mt-3">
                       <a
                         href={"/dashboard/bewerken/" + v.id}
                         className="flex-1 py-2 text-xs rounded-sm text-center"
