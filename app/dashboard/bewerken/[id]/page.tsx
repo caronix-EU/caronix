@@ -359,7 +359,7 @@ export default function BewerkVoertuigPage() {
                 <p className="text-[11px] mt-1" style={{ color: "#5B6570" }}>Over het bod. Bezoeker kan dit niet wijzigen.</p>
               </div>
               <div>
-                <label className={labelClass} style={labelStyle}>Overig / reparatie (€)</label>
+                <label className={labelClass} style={labelStyle}>Overig, bijv. poetsen (€)</label>
                 <div className={fieldWrap} style={fieldBorder}>
                   <input type="number" step="any" min="0" value={calcOverig} onChange={(e) => setCalcOverig(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="0" />
                 </div>

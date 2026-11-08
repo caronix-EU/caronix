@@ -151,8 +151,11 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
     (btwInfo ? `BTW-status: ${btwInfo.label}\n` : "") +
     `Link: ${autoUrl}\n` +
     "Bestemming: Nederland\n" +
-    parts.map((p) => p[0] + ": €" + Math.round(p[1])).join("\n") +
-    "\nTotaal landed: €" +
+    parts
+      .filter((p) => p[1] > 0)
+      .map((p) => p[0] + ": €" + Math.round(p[1]))
+      .join("\n") +
+    "\nTotale inkoopkosten: €" +
     Math.round(tot) +
     "\n\nMijn gegevens (naam/bedrijf/telefoon):";
   // Bericht voor WhatsApp: titelregel, korte zin en de link (zonder bedragen)
@@ -352,7 +355,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
                 style={inputStyle}
               />
             </Veld>
-            <Veld id="oth" label="Overig (reparatie e.d.) €">
+            <Veld id="oth" label="Overig (poetsen, klaarmaken e.d.) €">
               <input
                 id="oth"
                 type="number"
@@ -467,6 +470,11 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
               </p>
             </div>
           </div>
+          {auto.btwType === "Marge" && rp > 0 && (
+            <p className="text-xs mt-3" style={{ color: "#8A929C" }}>
+              Bij een margeauto is de btw over de marge hierin nog niet verwerkt.
+            </p>
+          )}
         </div>
 
         <div className="rounded-lg border p-4 mb-4" style={kaart}>
@@ -523,8 +531,8 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
         </a>
 
         <p className="text-xs mt-3" style={{ color: "#8A929C" }}>
-          Indicatieve berekening, geen offerte. Belastingen en overige kosten zijn hier invulbaar;
-          controleer deze altijd vooraf.
+          Indicatieve berekening. Uw bod wordt pas bindend na akkoord van de verkoper. Belastingen
+          en overige kosten zijn hier invulbaar; controleer deze altijd vooraf.
         </p>
 
         <div
