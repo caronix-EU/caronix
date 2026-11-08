@@ -18,7 +18,7 @@ const vindAuto = cache(async (slug: string) => {
   const { data } = await supabase
     .from("vehicles")
     .select(
-      "id, voertuignummer, brand, model, uitvoering, price, km, fuel, registration, photo_urls, calc_provisie_pct, calc_transport, calc_kenteken, calc_overig, calc_verkoopprijs, bpm_indicatie, btw_type"
+      "id, voertuignummer, brand, model, uitvoering, price, km, fuel, registration, photo_urls, calc_provisie_pct, calc_transport, calc_kenteken, calc_overig, calc_verkoopprijs, bpm_indicatie, btw_type, country"
     )
     .eq("voertuignummer", nummer)
     .maybeSingle();
@@ -86,6 +86,7 @@ export default async function CalculatorPagina({ params }: Props) {
         overig: Number(auto.calc_overig),
         verkoopprijs: auto.calc_verkoopprijs ? Number(auto.calc_verkoopprijs) : null,
         btwType: auto.btw_type || null,
+        land: auto.country || null,
       }}
     />
   );

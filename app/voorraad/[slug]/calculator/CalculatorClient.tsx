@@ -23,6 +23,7 @@ type CalcAuto = {
   overig: number;
   verkoopprijs: number | null;
   btwType: string | null;
+  land: string | null;
 };
 
 const KLEUREN = ["#7FA8D9", "#2E5A94", "#F0872A", "#A84F9C", "#8A929C", "#C9A227"];
@@ -129,6 +130,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
   if (auto.fuel) blokjes.push({ label: "Brandstof", waarde: auto.fuel });
   if (auto.km) blokjes.push({ label: "Kilometerstand", waarde: auto.km.toLocaleString("nl-NL") + " km" });
   if (registratieTekst) blokjes.push({ label: "1e registratie", waarde: registratieTekst });
+  if (auto.land) blokjes.push({ label: "Herkomst", waarde: auto.land });
 
   const autoUrl = `https://www.caronix.nl/voorraad/${auto.slug}/calculator`;
   const mailTekst =
@@ -203,7 +205,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
             <p className="text-sm mt-0.5" style={{ color: "#8A929C" }}>
               Vraagprijs: {fmt(auto.prijs)}
             </p>
-            <div className="text-xs mt-1" style={{ color: "#6E7680" }}>
+            <div className="text-xs mt-1" style={{ color: "#8A929C" }}>
               Voertuignummer CX-{auto.voertuignummer}
             </div>
             {btwInfo && (
@@ -220,7 +222,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
               </div>
             )}
             {blokjes.length > 0 && (
-              <div className="grid grid-cols-3 gap-2 mt-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
                 {blokjes.map((b) => (
                   <div
                     key={b.label}
@@ -341,7 +343,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
             </Veld>
           </div>
 
-          <p className="text-xs mt-3" style={{ color: "#6E7680" }}>
+          <p className="text-xs mt-3" style={{ color: "#8A929C" }}>
             Voorgesteld door Caronix: kenteken {fmt(auto.kenteken)}, BPM {fmt(auto.bpmBtw)}, overig{" "}
             {fmt(auto.overig)}. U kunt deze bedragen zelf aanpassen.
           </p>
@@ -461,14 +463,14 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
           Breng een bod uit
         </a>
 
-        <p className="text-xs mt-3" style={{ color: "#6E7680" }}>
+        <p className="text-xs mt-3" style={{ color: "#8A929C" }}>
           Indicatieve berekening, geen offerte. Belastingen en overige kosten zijn hier invulbaar;
           controleer deze altijd vooraf.
         </p>
 
         <div
           className="flex gap-4 text-xs mt-8 pt-4 border-t"
-          style={{ borderColor: "#1E2126", color: "#6E7680" }}
+          style={{ borderColor: "#1E2126", color: "#8A929C" }}
         >
           <Link href="/voorwaarden">Voorwaarden</Link>
           <Link href="/privacybeleid">Privacybeleid</Link>
