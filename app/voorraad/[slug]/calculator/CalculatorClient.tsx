@@ -132,7 +132,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
 
   const autoUrl = `https://www.caronix.nl/voorraad/${auto.slug}/calculator`;
   const mailTekst =
-    "Kostprijsberekening via Caronix\n" +
+    "Bod via de Caronix-calculator\n" +
     `Auto: ${auto.titel} (CX-${auto.voertuignummer})\n` +
     (btwInfo ? `BTW-status: ${btwInfo.label}\n` : "") +
     `Link: ${autoUrl}\n` +
@@ -143,7 +143,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
     "\n\nMijn gegevens (naam/bedrijf/telefoon):";
   const mailLink =
     `mailto:${CONTACT}?subject=` +
-    encodeURIComponent(`Offerte aanvraag - ${auto.titel} - CX-${auto.voertuignummer}`) +
+    encodeURIComponent(`Bod op ${auto.titel} - CX-${auto.voertuignummer}`) +
     "&body=" +
     encodeURIComponent(mailTekst);
 
@@ -458,7 +458,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
           className="hidden md:block w-full text-center py-3.5 rounded-md text-base font-semibold"
           style={{ backgroundColor: "#2E5A94", color: "#F2F3F4" }}
         >
-          Vraag een offerte aan bij Caronix
+          Breng een bod uit
         </a>
 
         <p className="text-xs mt-3" style={{ color: "#6E7680" }}>
@@ -508,7 +508,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
             className="shrink-0 px-4 py-3 rounded-md text-sm font-semibold"
             style={{ backgroundColor: "#2E5A94", color: "#F2F3F4" }}
           >
-            Offerte aanvragen
+            Breng een bod uit
           </a>
         </div>
       </div>
