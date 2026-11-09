@@ -33,7 +33,7 @@ const POSITIEF = "#4CBF82";
 // Het proces vanaf het bod, zoals Caronix het hanteert.
 const STAPPEN = [
   { titel: "U brengt een bod uit", tekst: "Via de knop stuurt u ons uw bod met deze berekening." },
-  { titel: "Wij leggen uw bod voor aan de verkoper", tekst: "De eigenaar van het voertuig krijgt uw bod van ons voorgelegd." },
+  { titel: "Wij leggen uw bod voor aan de verkoper", tekst: "De eigenaar van het voertuig krijgt uw bod van ons voorgelegd. De reactietijd hangt af van de verkoper; wij laten het u weten zodra wij antwoord hebben." },
   {
     titel: "Akkoord van de verkoper: bindend",
     tekst: "Gaat de verkoper akkoord, dan is uw bod bindend en wordt het voertuig aan u toegewezen. U ontvangt de factuur en betaalt vóór het transport.",
