@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = `${auto.brand} ${auto.model} | Caronix`;
   const description = `${auto.brand} ${auto.model}${
     auto.uitvoering ? " - " + auto.uitvoering : ""
-  }${auto.price ? " - EUR " + Number(auto.price).toLocaleString("nl-NL") : ""} - Bekijk dit voertuig bij Caronix.`;
+  }${auto.price ? " - € " + Number(auto.price).toLocaleString("nl-NL") : ""} - Bekijk dit voertuig bij Caronix.`;
   const eersteFoto = auto.photo_urls && auto.photo_urls.length > 0 ? auto.photo_urls[0] : null;
 
   return {

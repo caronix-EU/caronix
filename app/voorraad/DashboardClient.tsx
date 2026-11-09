@@ -763,7 +763,7 @@ export default function DashboardClient({ initialVehicles }: { initialVehicles: 
                       )}
                     </Link>
                     <div className="text-base" style={{ color: "#7FA8D9", fontWeight: 600 }}>
-                      {v.price ? "EUR " + Number(v.price).toLocaleString("nl-NL") : "-"}
+                      {v.price ? "€ " + Number(v.price).toLocaleString("nl-NL") : "-"}
                       {v.btw_type && (
                         <div className="text-[10px] font-normal text-right mt-0.5" style={{ color: "#F2F3F4" }}>
                           {v.btw_type}

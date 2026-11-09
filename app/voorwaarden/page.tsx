@@ -74,8 +74,20 @@ export default function VoorwaardenPage() {
         <h2 className="text-base mb-2 mt-8" style={{ color: "#F2F3F4", fontWeight: 600 }}>
           4. Totstandkoming van een overeenkomst
         </h2>
+        <p className="mb-3">
+          Een zakelijke koper kan via de kostprijscalculator op deze website een bod uitbrengen op
+          een voertuig. Caronix legt dat bod voor aan de verkoper van het voertuig. Gaat de
+          verkoper akkoord met het bod, dan is het bod bindend en wordt het voertuig aan de koper
+          toegewezen. Caronix stuurt de koper daarna een factuur, die de koper betaalt vóór het
+          transport.
+        </p>
+        <p className="mb-3">
+          Wijst de verkoper het bod af, dan laat Caronix dit de koper weten. Doet de verkoper een
+          tegenbod, dan legt Caronix dat aan de koper voor. Een tegenbod is voor de koper pas
+          bindend nadat hij daarmee akkoord is gegaan.
+        </p>
         <p className="mb-6">
-          Een overeenkomst tot koop of verkoop van een voertuig komt niet tot stand via deze
+          Andere overeenkomsten tot koop of verkoop van een voertuig komen niet tot stand via deze
           website, maar uitsluitend na rechtstreeks contact en nadere afspraken tussen Caronix en
           de betreffende partij, bijvoorbeeld via e-mail of WhatsApp.
         </p>

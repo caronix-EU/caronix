@@ -18,7 +18,7 @@ const vindAuto = cache(async (slug: string) => {
   const { data } = await supabase
     .from("vehicles")
     .select(
-      "id, voertuignummer, brand, model, uitvoering, price, km, fuel, registration, photo_urls, calc_provisie_pct, calc_transport, calc_kenteken, calc_overig, calc_verkoopprijs, bpm_indicatie, btw_type, country"
+      "id, voertuignummer, brand, model, uitvoering, price, km, fuel, registration, photo_urls, calc_provisie_pct, calc_transport, calc_kenteken, calc_overig, calc_verkoopprijs, bpm_indicatie, bpm_peildatum, btw_type, country"
     )
     .eq("voertuignummer", nummer)
     .maybeSingle();
@@ -36,14 +36,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const titel = [auto.brand, auto.model, auto.uitvoering].filter(Boolean).join(" ");
   const title = `Kostprijs berekenen: ${titel} | Caronix`;
-  const description = `Bereken wat de ${titel} u in totaal kost (landed cost) en wat u eraan overhoudt. Indicatieve berekening van Caronix.`;
+  const description = `Bereken wat de ${titel} u in totaal kost en wat uw marge kan zijn. Indicatieve berekening van Caronix.`;
   const eersteFoto = auto.photo_urls && auto.photo_urls.length > 0 ? auto.photo_urls[0] : null;
   const pad = `/voorraad/${maakSlug(auto.brand, auto.model, auto.voertuignummer)}/calculator`;
 
   // Tekst van het voorbeeldkaartje dat WhatsApp en social media tonen bij het delen
   const prijsTekst = auto.price ? `Vraagprijs € ${Number(auto.price).toLocaleString("nl-NL")}. ` : "";
   const ogTitle = `${titel} - bereken wat het u kost`;
-  const ogDescription = `${prijsTekst}Bereken uw totale inkoopkosten en wat u eraan overhoudt. Indicatieve berekening van Caronix.`;
+  const ogDescription = `${prijsTekst}Bereken uw totale inkoopkosten en wat uw marge kan zijn. Indicatieve berekening van Caronix.`;
 
   return {
     title,
@@ -92,6 +92,7 @@ export default async function CalculatorPagina({ params }: Props) {
         verkoopprijs: auto.calc_verkoopprijs ? Number(auto.calc_verkoopprijs) : null,
         btwType: auto.btw_type || null,
         land: auto.country || null,
+        bpmPeildatum: auto.bpm_peildatum || null,
       }}
     />
   );

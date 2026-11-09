@@ -20,6 +20,7 @@ type CalcAuto = {
   transport: number;
   kenteken: number;
   bpmBtw: number;
+  bpmPeildatum: string | null;
   overig: number;
   verkoopprijs: number | null;
   btwType: string | null;
@@ -31,15 +32,15 @@ const POSITIEF = "#4CBF82";
 
 // Het proces vanaf het bod, zoals Caronix het hanteert.
 const STAPPEN = [
-  { titel: "U brengt een bod uit", tekst: "Via de knop sturen wij uw bod met deze berekening door." },
-  { titel: "Wij leggen het voor aan de verkoper", tekst: "Uw bod wordt aan de verkoper gecommuniceerd." },
+  { titel: "U brengt een bod uit", tekst: "Via de knop stuurt u ons uw bod met deze berekening." },
+  { titel: "Wij leggen uw bod voor aan de verkoper", tekst: "De eigenaar van het voertuig krijgt uw bod van ons voorgelegd." },
   {
-    titel: "Akkoord: bindend en toegewezen",
+    titel: "Akkoord van de verkoper: bindend",
     tekst: "Gaat de verkoper akkoord, dan is uw bod bindend en wordt het voertuig aan u toegewezen. U ontvangt de factuur en betaalt vóór het transport.",
   },
   {
     titel: "Afwijzing of tegenbod",
-    tekst: "Wijst de verkoper af of doet hij een tegenbod? Dan krijgt u dat van ons terug.",
+    tekst: "Wijst de verkoper af? Dan hoort u dat van ons. Doet hij een tegenbod, dan leggen wij dat aan u voor en is het pas bindend als u daarmee akkoord gaat.",
   },
 ];
 const NEGATIEF = "#FF7B6B";
@@ -130,6 +131,16 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
       })
     : null;
 
+  // BPM is een indicatie: toon de peildatum zodat duidelijk is hoe actueel het bedrag is
+  const bpmPeil = auto.bpmPeildatum
+    ? new Date(auto.bpmPeildatum + "T12:00:00").toLocaleDateString("nl-NL", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : null;
+  const bpmToelichting = auto.bpmBtw > 0 ? (bpmPeil ? ` (indicatie per ${bpmPeil})` : " (indicatie)") : "";
+
   // BTW-status van de auto (zelfde veld als op de voertuigpagina)
   const btwInfo =
     auto.btwType === "Marge"
@@ -145,19 +156,23 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
   if (auto.land) blokjes.push({ label: "Herkomst", waarde: auto.land });
 
   const autoUrl = `https://www.caronix.nl/voorraad/${auto.slug}/calculator`;
+  // Bedragen in de mail met Nederlandse punten en een gewone spatie
+  const eur = (v: number) => fmt(v).replace(/\u00a0/g, " ");
   const mailTekst =
-    "Bod via de Caronix-calculator\n" +
-    `Auto: ${auto.titel} (CX-${auto.voertuignummer})\n` +
+    `Hierbij breng ik een bod uit van ${eur(h)} op ${auto.titel} (CX-${auto.voertuignummer}).\n` +
+    "Ik begrijp dat mijn bod aan de verkoper wordt voorgelegd en dat het bindend wordt zodra de verkoper akkoord geeft.\n" +
+    "Voorwaarden: https://www.caronix.nl/voorwaarden\n\n" +
+    "Mijn berekening via de Caronix-calculator:\n" +
     (btwInfo ? `BTW-status: ${btwInfo.label}\n` : "") +
     `Link: ${autoUrl}\n` +
     "Bestemming: Nederland\n" +
     parts
       .filter((p) => p[1] > 0)
-      .map((p) => p[0] + ": €" + Math.round(p[1]))
+      .map((p) => p[0] + ": " + eur(p[1]))
       .join("\n") +
-    "\nTotale inkoopkosten: €" +
-    Math.round(tot) +
-    "\n\nMijn gegevens (naam/bedrijf/telefoon):";
+    "\nTotale inkoopkosten: " +
+    eur(tot) +
+    "\n\nMijn gegevens:\nNaam:\nBedrijf:\nKvK-nummer:\nBTW-nummer:\nTelefoon:";
   // Bericht voor WhatsApp: titelregel, korte zin en de link (zonder bedragen)
   const waTekst = `${auto.titel}\nBekijk de kostprijsberekening bij Caronix:\n${autoUrl}`;
   const waLink = `https://wa.me/?text=${encodeURIComponent(waTekst)}`;
@@ -200,7 +215,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
           Weet wat uw import echt kost
         </h1>
         <p className="text-sm mb-5" style={{ color: "#8A929C" }}>
-          Weet vóór u biedt wat de auto werkelijk kost en wat u eraan verdient.
+          Weet vóór u biedt wat de auto werkelijk kost en wat uw marge kan zijn.
         </p>
 
         {/* Autokaart */}
@@ -369,8 +384,9 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
           </div>
 
           <p className="text-xs mt-3" style={{ color: "#8A929C" }}>
-            Voorgesteld door Caronix: kenteken {fmt(auto.kenteken)}, BPM {fmt(auto.bpmBtw)}, overig{" "}
-            {fmt(auto.overig)}. U kunt deze bedragen zelf aanpassen.
+            Voorgesteld door Caronix: kenteken {fmt(auto.kenteken)}, BPM {fmt(auto.bpmBtw)}
+            {bpmToelichting}, overig {fmt(auto.overig)}. U kunt deze bedragen zelf aanpassen.
+            {auto.bpmBtw > 0 && " De BPM is een indicatie en kan wijzigen."}
           </p>
         </div>
 
@@ -531,8 +547,9 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
         </a>
 
         <p className="text-xs mt-3" style={{ color: "#8A929C" }}>
-          Indicatieve berekening. Uw bod wordt pas bindend na akkoord van de verkoper. Belastingen
-          en overige kosten zijn hier invulbaar; controleer deze altijd vooraf.
+          Indicatieve berekening. Uw bod wordt pas bindend na akkoord, zoals beschreven onder
+          &quot;Zo werkt het&quot;. Belastingen en overige kosten zijn hier invulbaar; controleer deze
+          altijd vooraf.
         </p>
 
         <div

@@ -384,7 +384,7 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
 
     doc.setFontSize(17);
     doc.setTextColor(...blueDark);
-    const priceText = vehicle.price ? "EUR " + Number(vehicle.price).toLocaleString("nl-NL") : "-";
+    const priceText = vehicle.price ? "€ " + Number(vehicle.price).toLocaleString("nl-NL") : "-";
     doc.text(priceText, pageWidth - margin, y, { align: "right" });
     y += 6;
 
@@ -462,7 +462,7 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
       doc.setTextColor(...textDark);
-      doc.text("EUR " + Number(vehicle.bpm_indicatie).toLocaleString("nl-NL"), pageWidth - margin - 4, y + 6, {
+      doc.text("€ " + Number(vehicle.bpm_indicatie).toLocaleString("nl-NL"), pageWidth - margin - 4, y + 6, {
         align: "right",
       });
 
@@ -633,7 +633,7 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
 
             <div className="flex items-baseline gap-2 mb-6">
               <span className="text-2xl" style={{ color: "#7FA8D9", fontWeight: 700 }}>
-                {vehicle.price ? "EUR " + Number(vehicle.price).toLocaleString("nl-NL") : "-"}
+                {vehicle.price ? "€ " + Number(vehicle.price).toLocaleString("nl-NL") : "-"}
               </span>
               {vehicle.btw_type && (
                 <span className="text-xs" style={{ color: "#8A929C" }}>
@@ -716,7 +716,7 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
                   Indicatieve BPM bij import
                 </div>
                 <div className="text-lg" style={{ color: "#F2F3F4", fontWeight: 600 }}>
-                  EUR {Number(vehicle.bpm_indicatie).toLocaleString("nl-NL")}
+                  € {Number(vehicle.bpm_indicatie).toLocaleString("nl-NL")}
                 </div>
                 <p className="text-[11px] mt-2 leading-relaxed" style={{ color: "#6E7680" }}>
                   {maakBpmDisclaimer(BPM_BRON, bpmPeildatumFormatted)}
