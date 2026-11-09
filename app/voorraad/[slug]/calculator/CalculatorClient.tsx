@@ -64,9 +64,24 @@ function fmt(v: number): string {
 }
 
 // Leest een invulveld als getal; leeg of ongeldig telt als 0.
+// Leest een ingevuld bedrag als getal: punt = duizendtal, komma = decimaal. Leeg of ongeldig telt als 0.
 function n(v: string): number {
-  const x = parseFloat(v);
+  const x = parseFloat(v.replace(/\./g, "").replace(",", "."));
   return isNaN(x) ? 0 : x;
+}
+
+// Maakt van wat de bezoeker typt een net bedrag: punten voor duizendtallen (16450 wordt 16.450).
+function opmaak(invoer: string): string {
+  const schoon = invoer.replace(/[^\d,]/g, "");
+  const delen = schoon.split(",");
+  const heel = delen[0].replace(/^0+(?=\d)/, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  if (delen.length > 1) return heel + "," + delen.slice(1).join("").slice(0, 2);
+  return heel;
+}
+
+// Zet een getal om naar de opmaak van het invulveld.
+function naarVeld(v: number): string {
+  return opmaak(String(Math.round(v * 100) / 100).replace(".", ","));
 }
 
 function procent(v: number): string {
@@ -86,12 +101,12 @@ function Veld({ id, label, children }: { id: string; label: string; children: Re
 
 export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
   // Invulbaar door de bezoeker. Het bod begint bij de vraagprijs.
-  const [bod, setBod] = useState(String(auto.prijs));
-  const [reg, setReg] = useState(String(auto.kenteken));
-  const [tax, setTax] = useState(String(auto.bpmBtw));
-  const [oth, setOth] = useState(String(auto.overig));
+  const [bod, setBod] = useState(naarVeld(auto.prijs));
+  const [reg, setReg] = useState(naarVeld(auto.kenteken));
+  const [tax, setTax] = useState(naarVeld(auto.bpmBtw));
+  const [oth, setOth] = useState(naarVeld(auto.overig));
   // Verwachte verkoopprijs: vooraf ingevuld door Caronix (indien bekend), de bezoeker kan hem aanpassen.
-  const [verkoop, setVerkoop] = useState(auto.verkoopprijs ? String(auto.verkoopprijs) : "");
+  const [verkoop, setVerkoop] = useState(auto.verkoopprijs ? naarVeld(auto.verkoopprijs) : "");
 
   // Vast per auto (komt uit de database, de bezoeker kan dit niet wijzigen).
   const feePct = auto.provisie;
@@ -279,6 +294,9 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
             >
               Bekijk alle foto&apos;s en specificaties →
             </Link>
+            <Link href="/voorraad" className="block mt-2 text-sm underline" style={{ color: "#8A929C" }}>
+              Bekijk meer voertuigen →
+            </Link>
           </div>
         </div>
 
@@ -287,10 +305,10 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
           <Veld id="bod" label="Uw bod in € (startpunt is de vraagprijs)">
             <input
               id="bod"
-              type="number"
-              inputMode="decimal"
+              type="text"
+              inputMode="numeric"
               value={bod}
-              onChange={(e) => setBod(e.target.value)}
+              onChange={(e) => setBod(opmaak(e.target.value))}
               className={inputClass}
               style={inputStyle}
             />
@@ -300,7 +318,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
               <button
                 key={v}
                 type="button"
-                onClick={() => setBod(String(Math.max(0, n(bod) - v)))}
+                onClick={() => setBod(naarVeld(Math.max(0, n(bod) - v)))}
                 className="px-3.5 py-2 rounded-full border text-sm"
                 style={{ borderColor: "#2A2E34", color: "#F2F3F4", backgroundColor: "#0E1013" }}
               >
@@ -348,10 +366,10 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
             <Veld id="reg" label="Kentekenvoorbereiding €">
               <input
                 id="reg"
-                type="number"
-                inputMode="decimal"
+                type="text"
+                inputMode="numeric"
                 value={reg}
-                onChange={(e) => setReg(e.target.value)}
+                onChange={(e) => setReg(opmaak(e.target.value))}
                 className={inputClass}
                 style={inputStyle}
               />
@@ -362,10 +380,10 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
             <Veld id="tax" label="BPM €">
               <input
                 id="tax"
-                type="number"
-                inputMode="decimal"
+                type="text"
+                inputMode="numeric"
                 value={tax}
-                onChange={(e) => setTax(e.target.value)}
+                onChange={(e) => setTax(opmaak(e.target.value))}
                 className={inputClass}
                 style={inputStyle}
               />
@@ -373,10 +391,10 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
             <Veld id="oth" label="Overig (poetsen, klaarmaken e.d.) €">
               <input
                 id="oth"
-                type="number"
-                inputMode="decimal"
+                type="text"
+                inputMode="numeric"
                 value={oth}
-                onChange={(e) => setOth(e.target.value)}
+                onChange={(e) => setOth(opmaak(e.target.value))}
                 className={inputClass}
                 style={inputStyle}
               />
@@ -453,11 +471,11 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
           >
             <input
               id="rp"
-              type="number"
-              inputMode="decimal"
+              type="text"
+              inputMode="numeric"
               placeholder="0"
               value={verkoop}
-              onChange={(e) => setVerkoop(e.target.value)}
+              onChange={(e) => setVerkoop(opmaak(e.target.value))}
               className={inputClass}
               style={inputStyle}
             />
