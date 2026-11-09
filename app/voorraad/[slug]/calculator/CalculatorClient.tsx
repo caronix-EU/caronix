@@ -542,8 +542,13 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
               </p>
             </div>
           </div>
-          {auto.btwType === "Marge" && rp > 0 && (
+          {rp > 0 && (
             <p className="text-xs mt-3" style={{ color: "#8A929C" }}>
+              Vóór uw eigen kosten (zoals stalling, rente en garantie).
+            </p>
+          )}
+          {auto.btwType === "Marge" && rp > 0 && (
+            <p className="text-xs mt-1" style={{ color: "#8A929C" }}>
               Bij een margeauto is de btw over de marge hierin nog niet verwerkt.
             </p>
           )}
