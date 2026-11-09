@@ -446,30 +446,6 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
 
         {/* Totale inkoopkosten */}
         <div className="rounded-lg border p-4 mb-3" style={kaart}>
-          <p
-            className="text-3xl text-right"
-            style={{ color: "#7FA8D9", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}
-          >
-            {fmt(tot)}
-          </p>
-          <div className="text-sm text-right" style={{ color: "#8A929C" }}>
-            Uw totale inkoopkosten, klaar voor verkoop
-          </div>
-
-          <div
-            className="flex h-3.5 rounded-lg overflow-hidden my-3"
-            style={{ backgroundColor: "#1E2126" }}
-            aria-hidden="true"
-          >
-            {tot > 0 &&
-              parts.map((p, i) => (
-                <div key={i} style={{ width: (p[1] / tot) * 100 + "%", backgroundColor: KLEUREN[i] }} />
-              ))}
-          </div>
-          <div className="text-sm mb-1" style={{ color: "#8A929C" }}>
-            Aandeel in totale inkoopkosten
-          </div>
-
           <div>
             {parts
               .map((p, i) => ({ p, i }))
@@ -492,6 +468,32 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
                   </span>
                 </div>
               ))}
+          </div>
+
+          <div className="mt-3 pt-3 border-t" style={{ borderColor: "#2A2E34" }}>
+            <p
+              className="text-2xl text-right"
+              style={{ color: "#7FA8D9", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}
+            >
+              {fmt(tot)}
+            </p>
+            <div className="text-sm text-right" style={{ color: "#8A929C" }}>
+              Uw totale inkoopkosten, klaar voor verkoop
+            </div>
+
+            <div
+              className="flex h-3.5 rounded-lg overflow-hidden my-3"
+              style={{ backgroundColor: "#1E2126" }}
+              aria-hidden="true"
+            >
+              {tot > 0 &&
+                parts.map((p, i) => (
+                  <div key={i} style={{ width: (p[1] / tot) * 100 + "%", backgroundColor: KLEUREN[i] }} />
+                ))}
+            </div>
+            <div className="text-sm" style={{ color: "#8A929C" }}>
+              Aandeel in totale inkoopkosten
+            </div>
           </div>
         </div>
 
