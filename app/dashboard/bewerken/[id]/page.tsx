@@ -173,6 +173,26 @@ export default function BewerkVoertuigPage() {
     }
   }
 
+  // Voorbeeldberekening voor u als beheerder (klanten zien dit niet): zelfde rekenwijze als de calculator,
+  // met de vraagprijs als bod en lege velden op hun standaardwaarde.
+  const calcNum = (v: string, standaard = 0) => {
+    if (v.trim() === "") return standaard;
+    const x = parseFloat(v);
+    return isNaN(x) ? 0 : x;
+  };
+  const calcBod = calcNum(price);
+  const calcTotaal =
+    calcBod +
+    (calcBod * calcNum(calcProvisie, 1.3)) / 100 +
+    calcNum(calcTransport, 595) +
+    calcNum(calcKenteken, 145) +
+    calcNum(bpm) +
+    calcNum(calcOverig);
+  const calcRp = calcNum(calcVerkoop);
+  const calcMarge = calcRp - calcTotaal;
+  const eurTekst = (v: number) =>
+    new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(v);
+
   const inputStyle: React.CSSProperties = { color: "#F2F3F4" };
   const labelClass = "block text-sm mb-2";
   const labelStyle: React.CSSProperties = { color: "#8A929C" };
@@ -386,6 +406,33 @@ export default function BewerkVoertuigPage() {
                 </div>
                 <p className="text-[11px] mt-1" style={{ color: "#5B6570" }}>Bezoeker kan dit aanpassen.</p>
               </div>
+            </div>
+
+            <div className="mt-6 rounded-md border p-4" style={{ borderColor: "#2A2E34", backgroundColor: "#08090B" }}>
+              <div className="text-[11px] mb-3" style={{ color: "#5B6570" }}>
+                Voorbeeld voor u, niet zichtbaar voor klanten: berekend met de vraagprijs als bod en de BPM-indicatie.
+              </div>
+              {calcBod > 0 ? (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-xs" style={{ color: "#8A929C" }}>Totale inkoop</div>
+                    <div className="text-xl font-bold mt-1" style={{ color: "#7FA8D9", fontFamily: "'Space Grotesk', sans-serif" }}>
+                      {eurTekst(calcTotaal)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs" style={{ color: "#8A929C" }}>Marge voor de inkoper</div>
+                    <div
+                      className="text-xl font-bold mt-1"
+                      style={{ color: calcRp > 0 ? (calcMarge < 0 ? "#FF7B6B" : "#4CBF82") : "#8A929C", fontFamily: "'Space Grotesk', sans-serif" }}
+                    >
+                      {calcRp > 0 ? eurTekst(calcMarge) + " (" + ((calcMarge / calcRp) * 100).toFixed(1).replace(".", ",") + "%)" : "–"}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-xs" style={{ color: "#8A929C" }}>Vul eerst de prijs in om het resultaat te zien.</div>
+              )}
             </div>
           </div>
 

@@ -190,7 +190,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
   const fee = (h * feePct) / 100;
   const parts: [string, number][] = [
     ["Bod", h],
-    ["Provisie Caronix (" + String(feePct).replace(".", ",") + "% van bod)", fee],
+    ["Provisie Caronix", fee],
     ["Transport", tr],
     ["Kentekenvoorbereiding", n(reg)],
     ["BPM", n(tax)],
