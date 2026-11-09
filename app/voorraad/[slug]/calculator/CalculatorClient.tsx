@@ -99,6 +99,79 @@ function Veld({ id, label, children }: { id: string; label: string; children: Re
   );
 }
 
+// Bedragveld: euroteken links, pijltjes rechts om het bedrag te verhogen of verlagen.
+// Met vast=true is het veld alleen-lezen (zoals transport).
+function Bedragveld({
+  id,
+  waarde,
+  onWijzig,
+  stap = 10,
+  vast = false,
+  placeholder,
+}: {
+  id: string;
+  waarde: string;
+  onWijzig?: (v: string) => void;
+  stap?: number;
+  vast?: boolean;
+  placeholder?: string;
+}) {
+  const wijzig = (richting: 1 | -1) => {
+    if (onWijzig) onWijzig(naarVeld(Math.max(0, n(waarde) + richting * stap)));
+  };
+  return (
+    <div className="relative">
+      <span
+        className="absolute top-1/2 -translate-y-1/2 pointer-events-none text-base"
+        style={{ left: 12, color: "#8A929C" }}
+      >
+        €
+      </span>
+      <input
+        id={id}
+        type="text"
+        inputMode="numeric"
+        placeholder={placeholder}
+        value={waarde}
+        onChange={onWijzig ? (e) => onWijzig(opmaak(e.target.value)) : undefined}
+        readOnly={vast}
+        disabled={vast}
+        className={inputClass}
+        style={{ ...(vast ? lockedStyle : inputStyle), paddingLeft: 32, paddingRight: vast ? undefined : 44 }}
+      />
+      {!vast && (
+        <div
+          className="absolute top-0 bottom-0 right-0 flex flex-col border-l overflow-hidden"
+          style={{ width: 36, borderColor: "#2A2E34", borderRadius: "0 6px 6px 0" }}
+        >
+          <button
+            type="button"
+            onClick={() => wijzig(1)}
+            aria-label="Bedrag verhogen"
+            className="flex-1 flex items-center justify-center w-full"
+            style={{ color: "#8A929C" }}
+          >
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" strokeWidth={1.5}>
+              <path d="M1 5l4-4 4 4" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            onClick={() => wijzig(-1)}
+            aria-label="Bedrag verlagen"
+            className="flex-1 flex items-center justify-center w-full border-t"
+            style={{ color: "#8A929C", borderColor: "#2A2E34" }}
+          >
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" strokeWidth={1.5}>
+              <path d="M1 1l4 4 4-4" />
+            </svg>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
   // Invulbaar door de bezoeker. Het bod begint bij de vraagprijs.
   const [bod, setBod] = useState(naarVeld(auto.prijs));
@@ -229,8 +302,11 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
         >
           Weet wat uw import echt kost
         </h1>
-        <p className="text-sm mb-5" style={{ color: "#8A929C" }}>
+        <p className="text-sm mb-1" style={{ color: "#8A929C" }}>
           Weet vóór u biedt wat de auto werkelijk kost en wat uw marge kan zijn.
+        </p>
+        <p className="text-xs mb-5" style={{ color: "#8A929C" }}>
+          Alleen voor zakelijke kopers (autobedrijven).
         </p>
 
         {/* Autokaart */}
@@ -302,16 +378,8 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
 
         {/* Invoer */}
         <div className="rounded-lg border p-4 mb-3" style={kaart}>
-          <Veld id="bod" label="Uw bod in € (startpunt is de vraagprijs)">
-            <input
-              id="bod"
-              type="text"
-              inputMode="numeric"
-              value={bod}
-              onChange={(e) => setBod(opmaak(e.target.value))}
-              className={inputClass}
-              style={inputStyle}
-            />
+          <Veld id="bod" label="Uw bod (startpunt is de vraagprijs)">
+            <Bedragveld id="bod" waarde={bod} onWijzig={setBod} stap={50} />
           </Veld>
           <div className="flex gap-2 flex-wrap mt-2 mb-3">
             {[500, 250, 100, 50].map((v) => (
@@ -322,7 +390,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
                 className="px-3.5 py-2 rounded-full border text-sm"
                 style={{ borderColor: "#2A2E34", color: "#F2F3F4", backgroundColor: "#0E1013" }}
               >
-                − €{v}
+                − € {v}
               </button>
             ))}
           </div>
@@ -352,52 +420,20 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
           </div>
 
           <div className="grid grid-cols-2 gap-3 mb-3">
-            <Veld id="tr" label="Transport €">
-              <input
-                id="tr"
-                type="number"
-                value={tr}
-                readOnly
-                disabled
-                className={inputClass}
-                style={lockedStyle}
-              />
+            <Veld id="tr" label="Transport">
+              <Bedragveld id="tr" waarde={naarVeld(tr)} vast />
             </Veld>
-            <Veld id="reg" label="Kentekenvoorbereiding €">
-              <input
-                id="reg"
-                type="text"
-                inputMode="numeric"
-                value={reg}
-                onChange={(e) => setReg(opmaak(e.target.value))}
-                className={inputClass}
-                style={inputStyle}
-              />
+            <Veld id="reg" label="Kentekenvoorbereiding">
+              <Bedragveld id="reg" waarde={reg} onWijzig={setReg} stap={10} />
             </Veld>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Veld id="tax" label="BPM €">
-              <input
-                id="tax"
-                type="text"
-                inputMode="numeric"
-                value={tax}
-                onChange={(e) => setTax(opmaak(e.target.value))}
-                className={inputClass}
-                style={inputStyle}
-              />
+            <Veld id="tax" label="BPM">
+              <Bedragveld id="tax" waarde={tax} onWijzig={setTax} stap={10} />
             </Veld>
-            <Veld id="oth" label="Overig (poetsen, klaarmaken e.d.) €">
-              <input
-                id="oth"
-                type="text"
-                inputMode="numeric"
-                value={oth}
-                onChange={(e) => setOth(opmaak(e.target.value))}
-                className={inputClass}
-                style={inputStyle}
-              />
+            <Veld id="oth" label="Overig (poetsen, klaarmaken e.d.)">
+              <Bedragveld id="oth" waarde={oth} onWijzig={setOth} stap={10} />
             </Veld>
           </div>
 
@@ -465,20 +501,11 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
             id="rp"
             label={
               auto.verkoopprijs
-                ? "Indicatieve verkoopprijs in € – Caronix inschatting"
-                : "Verwachte verkoopprijs in €"
+                ? "Indicatieve verkoopprijs – Caronix inschatting"
+                : "Verwachte verkoopprijs"
             }
           >
-            <input
-              id="rp"
-              type="text"
-              inputMode="numeric"
-              placeholder="0"
-              value={verkoop}
-              onChange={(e) => setVerkoop(opmaak(e.target.value))}
-              className={inputClass}
-              style={inputStyle}
-            />
+            <Bedragveld id="rp" waarde={verkoop} onWijzig={setVerkoop} stap={50} placeholder="0" />
           </Veld>
           <p className="text-xs mt-2" style={{ color: "#8A929C" }}>
             {auto.verkoopprijs
