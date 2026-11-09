@@ -447,7 +447,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
         {/* Totale inkoopkosten */}
         <div className="rounded-lg border p-4 mb-3" style={kaart}>
           <p
-            className="text-4xl text-right"
+            className="text-3xl text-right"
             style={{ color: "#7FA8D9", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}
           >
             {fmt(tot)}
@@ -513,20 +513,29 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
               : "Vul hier uw eigen verwachte verkoopprijs in."}
           </p>
 
-          <div className="grid grid-cols-2 gap-2 mt-4">
+          <div
+            className="grid grid-cols-2 gap-3 mt-4 rounded-md border p-3"
+            style={{ borderColor: "#1E2126", backgroundColor: "#08090B" }}
+          >
             <div>
-              <div className="text-xs" style={{ color: "#8A929C" }}>
-                Marge
+              <div className="text-sm" style={{ color: "#8A929C" }}>
+                Uw marge
               </div>
-              <p className="text-lg font-bold mt-1" style={{ color: margeKleur }}>
+              <p
+                className="text-3xl sm:text-4xl font-bold mt-1"
+                style={{ color: margeKleur, fontFamily: "'Space Grotesk', sans-serif" }}
+              >
                 {margeTekst}
               </p>
             </div>
             <div>
-              <div className="text-xs" style={{ color: "#8A929C" }}>
+              <div className="text-sm" style={{ color: "#8A929C" }}>
                 Marge % v. verkoop
               </div>
-              <p className="text-lg font-bold mt-1" style={{ color: margeKleur }}>
+              <p
+                className="text-3xl sm:text-4xl font-bold mt-1"
+                style={{ color: margeKleur, fontFamily: "'Space Grotesk', sans-serif" }}
+              >
                 {margePctTekst}
               </p>
             </div>
@@ -627,9 +636,9 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
             </div>
             <div>
               <div className="text-[11px]" style={{ color: "#8A929C" }}>
-                Marge
+                Uw marge
               </div>
-              <div className="text-base font-bold truncate" style={{ color: margeKleur }}>
+              <div className="text-lg font-bold truncate" style={{ color: margeKleur }}>
                 {rp > 0 ? margeTekst : "–"}
               </div>
             </div>
