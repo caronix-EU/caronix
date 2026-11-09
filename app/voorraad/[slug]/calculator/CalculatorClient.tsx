@@ -312,12 +312,10 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
         {/* Autokaart */}
         <div className="rounded-lg border overflow-hidden mb-3" style={kaart}>
           {auto.foto && (
-            <img
-              src={auto.foto}
-              alt={auto.titel}
-              className="w-full block object-cover"
-              style={{ maxHeight: 280 }}
-            />
+            // Vaste verhouding 3:2 met de hele foto zichtbaar (niet bijgesneden), zoals in het overzicht
+            <div className="w-full" style={{ aspectRatio: "3 / 2", backgroundColor: "#08090B" }}>
+              <img src={auto.foto} alt={auto.titel} className="w-full h-full block object-contain" />
+            </div>
           )}
           <div className="p-4">
             <h2
