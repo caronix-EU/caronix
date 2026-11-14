@@ -1,239 +1,28 @@
-"use client";
+import type { Metadata } from "next";
+import { connection } from "next/server";
+import { supabase } from "../lib/supabaseClient";
+import HomeClient from "./HomeClient";
+import HomeSecties from "./HomeSecties";
 
-import { useState } from "react";
-import Link from "next/link";
+export const metadata: Metadata = {
+  description:
+    "Caronix is een auto groothandel voor autobedrijven. Bekijk het aanbod occasions uit de EU, bereken de kostprijs en breng een bod uit.",
+  alternates: { canonical: "/" },
+};
 
-const carBlueprints = [
-  "M8 46h4l4-9c2-4 7-7 14-7h20c7 0 12 3 14 7l4 9h4a3 3 0 013 3v6a3 3 0 01-3 3h-4a8 8 0 01-16 0H32a8 8 0 01-16 0h-4a3 3 0 01-3-3v-6a3 3 0 013-3z",
-  "M6 44h5l3-12c1.5-5 6-9 13-9h18c7 0 11.5 4 13 9l3 12h5a3 3 0 013 3v5a3 3 0 01-3 3h-4a8 8 0 01-16 0H30a8 8 0 01-16 0h-5a3 3 0 01-3-3v-5a3 3 0 013-3z",
-  "M10 45h3l6-13c2-5 8-9 15-9h9c6 0 10 3 12 8l5 14h3a3 3 0 013 3v4a3 3 0 01-3 3h-3a7 7 0 01-14 0H30a7 7 0 01-14 0h-3a3 3 0 01-3-3v-4a3 3 0 013-3z",
-];
+export default async function Home() {
+  // Altijd vers ophalen, zodat nieuwe auto's meteen op de homepage staan.
+  await connection();
 
-const tileBg = [
-  "linear-gradient(135deg,#12151A,#1C2128)",
-  "linear-gradient(135deg,#0D1520,#16222F)",
-  "linear-gradient(135deg,#14161B,#1E2833)",
-];
-
-export default function LoginPage() {
-  const [lang, setLang] = useState<"NL" | "EN">("NL");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showLogin, setShowLogin] = useState(false);
-
-  const t = {
-    NL: {
-      loginTitle: "Inloggen op uw account",
-      email: "E-mailadres",
-      password: "Wachtwoord",
-      submit: "Inloggen",
-      noAccount: "Nog geen account?",
-      register: "Registreer hier",
-      footer: "B2B-voertuigbemiddeling",
-      loginBtn: "Login",
-      companyHeading: "Caronix: B2B Cartrading & Sourcing",
-      companyText:
-        "Caronix is een auto groothandel die bemiddelt voor autobedrijven in de in- en verkoop van personenauto's binnen de EU. Met ruim 25 jaar ervaring in de branche bieden wij een transparante en efficiente manier om uw wagenpark uit te breiden - zonder omwegen.",
-    },
-    EN: {
-      loginTitle: "Log in to your account",
-      email: "Email address",
-      password: "Password",
-      submit: "Log in",
-      noAccount: "Don't have an account?",
-      register: "Register here",
-      footer: "B2B vehicle brokerage",
-      loginBtn: "Login",
-      companyHeading: "Caronix: B2B Cartrading & Sourcing",
-      companyText:
-        "Caronix is a car wholesaler that brokers vehicle trade for dealers, handling the purchase and sale of passenger cars across the EU. With over 25 years of experience in the industry, we offer a transparent and efficient way to expand your fleet - without the hassle.",
-    },
-  }[lang];
-
-  const chrome: React.CSSProperties = {
-    backgroundImage:
-      "linear-gradient(180deg, #F2F3F4 0%, #C7CCD1 35%, #8C949C 55%, #DADFE3 75%, #A9AFB6 100%)",
-    WebkitBackgroundClip: "text",
-    backgroundClip: "text",
-    color: "transparent",
-    fontFamily: "'Space Grotesk', sans-serif",
-    fontWeight: 700,
-  };
+  const { data } = await supabase
+    .from("vehicles")
+    .select("voertuignummer, brand, model, uitvoering, price, km, registration, photo_urls")
+    .order("created_at", { ascending: false })
+    .limit(6);
 
   return (
-    <div className="min-h-screen w-full flex flex-col md:flex-row" style={{ backgroundColor: "#08090B" }}>
-           <div
-        className="md:w-1/2 min-h-[220px] md:min-h-screen relative overflow-hidden"
-        style={{ backgroundColor: "#000" }}
-      >
-        <img
-          src="/hero-pand.png"
-          alt="Caronix pand"
-          className="w-full h-full object-cover"
-        />
-      </div>       
-
-      <div
-        className="md:w-1/2 flex flex-col border-t md:border-t-0 md:border-l"
-        style={{ backgroundColor: "#0E1013", borderColor: "#1E2126" }}
-      >
-        <div className="flex justify-end items-center gap-3 p-6 md:p-8">
-          <Link
-            href="/voorraad"
-            className="text-xs px-3 py-1.5 rounded-full border transition-colors"
-            style={{ borderColor: "#2A2E34", color: "#8FA0B8" }}
-          >
-            Voorraad
-          </Link>
-
-          <Link
-            href="/contact"
-            className="text-xs px-3 py-1.5 rounded-full border transition-colors"
-            style={{ borderColor: "#2A2E34", color: "#8FA0B8" }}
-          >
-            Contact
-          </Link>
-
-          <button
-            onClick={() => setShowLogin((v) => !v)}
-            className="text-xs px-3 py-1.5 rounded-full border transition-colors"
-            style={{
-              borderColor: showLogin ? "#2E5A94" : "#2A2E34",
-              color: showLogin ? "#F2F3F4" : "#8FA0B8",
-              backgroundColor: showLogin ? "#2E5A94" : "transparent",
-            }}
-          >
-            {t.loginBtn}
-          </button>
-
-          <div className="flex rounded-full border overflow-hidden text-xs" style={{ borderColor: "#2A2E34" }}>
-            {(["NL", "EN"] as const).map((l) => (
-              <button
-                key={l}
-                onClick={() => setLang(l)}
-                className="px-3 py-1.5 transition-colors"
-                style={{
-                  backgroundColor: lang === l ? "#2E5A94" : "transparent",
-                  color: lang === l ? "#F2F3F4" : "#7A828C",
-                }}
-              >
-                {l}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex-1 flex items-center justify-center px-8 md:px-16">
-          <div className="w-full max-w-sm">
-            <div className="flex flex-col items-center text-center mb-10">
-              <svg width="48" height="48" viewBox="0 0 100 100" className="mb-3">
-                <circle cx="50" cy="50" r="30" fill="none" stroke="#3E4750" strokeWidth={2} />
-                <path d="M50 20 Q65 50 50 80 M20 50 h60" stroke="#3E4750" strokeWidth={1} fill="none" opacity={0.7} />
-                <path d="M10 68 C35 68 55 35 92 14" stroke="url(#swoosh)" strokeWidth={6} fill="none" strokeLinecap="round" />
-                <defs>
-                  <linearGradient id="swoosh" x1="0" y1="1" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#2E5A94" />
-                    <stop offset="100%" stopColor="#7FA8D9" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <h1 className="text-3xl tracking-tight" style={chrome}>
-                CARONIX
-              </h1>
-              <p
-                className="mt-2 text-[10px]"
-                style={{ color: "#6E93C2", letterSpacing: "0.3em", fontWeight: 500 }}
-              >
-                B2B&nbsp;&nbsp;|&nbsp;&nbsp;CARTRADING&nbsp;&nbsp;|&nbsp;&nbsp;SOURCING
-              </p>
-            </div>
-
-            {!showLogin ? (
-              <div className="text-center text-sm" style={{ color: "#B7BEC7" }}>
-                <h2 className="mb-4 text-sm" style={{ color: "#F2F3F4", fontWeight: 700 }}>
-                  {t.companyHeading}
-                </h2>
-                <p>{t.companyText}</p>
-              </div>
-            ) : (
-              <>
-                <h2 className="text-lg mb-6" style={{ color: "#F2F3F4" }}>
-                  {t.loginTitle}
-                </h2>
-
-                <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-                  <div>
-                    <label className="block text-sm mb-2" style={{ color: "#8A929C" }}>
-                      {t.email}
-                    </label>
-                    <div className="flex items-center gap-2 border-b pb-2" style={{ borderColor: "#2A2E34" }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B7CA8" strokeWidth={2}>
-                        <rect x="2" y="4" width="20" height="16" rx="2" />
-                        <path d="m2 7 10 6 10-6" />
-                      </svg>
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-transparent outline-none text-sm"
-                        style={{ color: "#F2F3F4" }}
-                        placeholder="naam@bedrijf.nl"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm mb-2" style={{ color: "#8A929C" }}>
-                      {t.password}
-                    </label>
-                    <div className="flex items-center gap-2 border-b pb-2" style={{ borderColor: "#2A2E34" }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B7CA8" strokeWidth={2}>
-                        <rect x="3" y="11" width="18" height="10" rx="2" />
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                      </svg>
-                      <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-transparent outline-none text-sm"
-                        style={{ color: "#F2F3F4" }}
-                        placeholder="********"
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full py-3 text-sm transition-colors"
-                    style={{ backgroundColor: "#2E5A94", color: "#F2F3F4" }}
-                    onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#3E6FAE")}
-                    onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#2E5A94")}
-                  >
-                    {t.submit}
-                  </button>
-                </form>
-
-                <p className="mt-6 text-sm" style={{ color: "#7A828C" }}>
-                  {t.noAccount}{" "}
-                  <a href="#" className="underline" style={{ color: "#F2F3F4" }}>
-                    {t.register}
-                  </a>
-                </p>
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className="p-6 md:p-8 text-xs flex flex-wrap items-center gap-x-4 gap-y-2" style={{ color: "#4E555E" }}>
-          <span>Caronix - {t.footer}</span>
-          <Link href="/voorwaarden" className="underline" style={{ color: "#4E555E" }}>
-            Algemene voorwaarden
-          </Link>
-          <Link href="/privacybeleid" className="underline" style={{ color: "#4E555E" }}>
-            Privacybeleid
-          </Link>
-        </div>
-      </div>
-    </div>
+    <HomeClient>
+      <HomeSecties nieuwste={data ?? []} />
+    </HomeClient>
   );
 }
