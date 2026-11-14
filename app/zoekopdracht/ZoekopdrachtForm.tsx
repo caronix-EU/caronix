@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { ReactNode } from "react";
+import { MERKEN, modellenVoor, normaliseer, uniek, vindMerk } from "../../lib/automerken";
 
 // Hier komen de zoekopdrachten binnen.
 const CONTACT = "info@caronix.nl";
@@ -66,11 +67,23 @@ const BRANDSTOF_OPTIES = ["Benzine", "Diesel", "Hybride (HEV/MHEV)", "Plug-in hy
 const TRANSMISSIE_OPTIES = ["Automaat", "Handgeschakeld"];
 const AANTAL_OPTIES = ["1", "2", "3 of meer"];
 
-export default function ZoekopdrachtForm() {
+export default function ZoekopdrachtForm({
+  voorraad = [],
+}: {
+  voorraad?: { brand: string; model: string }[];
+}) {
   const [v, setV] = useState<Invoer>(LEEG);
   const [fouten, setFouten] = useState<string[]>([]);
   const [tekst, setTekst] = useState<string | null>(null);
   const [gekopieerd, setGekopieerd] = useState(false);
+
+  // Suggesties: de standaardlijst plus wat er in onze voorraad staat. Vrij typen blijft mogelijk.
+  const merken = uniek([...MERKEN, ...voorraad.map((x) => x.brand)]).sort((a, b) => a.localeCompare(b, "nl"));
+  const gekozen = vindMerk(v.merk) ?? v.merk.trim();
+  const modellen = uniek([
+    ...modellenVoor(v.merk),
+    ...(gekozen ? voorraad.filter((x) => normaliseer(x.brand) === normaliseer(gekozen)).map((x) => x.model) : []),
+  ]);
 
   const huidigJaar = new Date().getFullYear();
   const jaren = Array.from({ length: 14 }, (_, i) => huidigJaar - i);
@@ -87,7 +100,7 @@ export default function ZoekopdrachtForm() {
     return (
       "Zoekopdracht via caronix.nl\n\n" +
       "Gezocht voertuig\n" +
-      regel("Merk", v.merk) +
+      regel("Merk", vindMerk(v.merk) ?? v.merk) +
       regel("Model", v.model) +
       regel("Bouwjaar vanaf", v.bouwjaar) +
       regel("Kilometerstand tot", v.km ? Number(v.km).toLocaleString("nl-NL") + " km" : "") +
@@ -118,7 +131,7 @@ export default function ZoekopdrachtForm() {
     const t = maakTekst();
     setTekst(t);
     setGekopieerd(false);
-    const onderwerp = `Zoekopdracht: ${[v.merk.trim(), v.model.trim()].filter(Boolean).join(" ")}`;
+    const onderwerp = `Zoekopdracht: ${[vindMerk(v.merk) ?? v.merk.trim(), v.model.trim()].filter(Boolean).join(" ")}`;
     window.location.href =
       `mailto:${CONTACT}?subject=${encodeURIComponent(onderwerp)}&body=${encodeURIComponent(t)}`;
   }
@@ -144,10 +157,20 @@ export default function ZoekopdrachtForm() {
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Veld id="merk" label="Merk *">
-            <input id="merk" value={v.merk} onChange={zet("merk")} className={inputClass} style={inputStyle} placeholder="Toyota" />
+            <input id="merk" list="merken" autoComplete="off" value={v.merk} onChange={zet("merk")} className={inputClass} style={inputStyle} placeholder="Toyota" />
+            <datalist id="merken">
+              {merken.map((b) => (
+                <option key={b} value={b} />
+              ))}
+            </datalist>
           </Veld>
           <Veld id="model" label="Model">
-            <input id="model" value={v.model} onChange={zet("model")} className={inputClass} style={inputStyle} placeholder="Yaris Cross" />
+            <input id="model" list="modellen" autoComplete="off" value={v.model} onChange={zet("model")} className={inputClass} style={inputStyle} placeholder="Yaris Cross" />
+            <datalist id="modellen">
+              {modellen.map((mo) => (
+                <option key={mo} value={mo} />
+              ))}
+            </datalist>
           </Veld>
           <Veld id="bouwjaar" label="Bouwjaar vanaf">
             <select id="bouwjaar" value={v.bouwjaar} onChange={zet("bouwjaar")} className={inputClass} style={inputStyle}>

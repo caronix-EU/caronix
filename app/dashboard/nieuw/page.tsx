@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabaseClient";
 import { CARROSSERIE_OPTIONS } from "../../../lib/carrosserie";
+import { MERKEN, modellenVoor } from "../../../lib/automerken";
 
 export default function NieuwVoertuigPage() {
   const router = useRouter();
@@ -161,17 +162,28 @@ export default function NieuwVoertuigPage() {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          <datalist id="merken">
+            {MERKEN.map((b) => (
+              <option key={b} value={b} />
+            ))}
+          </datalist>
+          <datalist id="modellen">
+            {modellenVoor(brand).map((mo) => (
+              <option key={mo} value={mo} />
+            ))}
+          </datalist>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label className={labelClass} style={labelStyle}>Merk</label>
               <div className={fieldWrap} style={fieldBorder}>
-                <input required value={brand} onChange={(e) => setBrand(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="BMW" />
+                <input required list="merken" autoComplete="off" value={brand} onChange={(e) => setBrand(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="BMW" />
               </div>
             </div>
             <div>
               <label className={labelClass} style={labelStyle}>Model</label>
               <div className={fieldWrap} style={fieldBorder}>
-                <input required value={model} onChange={(e) => setModel(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="5 Serie" />
+                <input required list="modellen" autoComplete="off" value={model} onChange={(e) => setModel(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="5 Serie" />
               </div>
             </div>
             <div>
@@ -312,7 +324,7 @@ export default function NieuwVoertuigPage() {
                 <p className="text-[11px] mt-1" style={{ color: "#5B6570" }}>Bezoeker kan dit niet wijzigen.</p>
               </div>
               <div>
-                <label className={labelClass} style={labelStyle}>Kentekenvoorbereiding (€)</label>
+                <label className={labelClass} style={labelStyle}>RDW en kentekenplaten (€)</label>
                 <div className={fieldWrap} style={fieldBorder}>
                   <input type="number" step="any" min="0" value={calcKenteken} onChange={(e) => setCalcKenteken(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="145" />
                 </div>

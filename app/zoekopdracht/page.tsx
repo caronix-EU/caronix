@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { connection } from "next/server";
+import { supabase } from "../../lib/supabaseClient";
 import ZoekopdrachtForm from "./ZoekopdrachtForm";
 
 export const metadata: Metadata = {
@@ -9,7 +11,12 @@ export const metadata: Metadata = {
   alternates: { canonical: "/zoekopdracht" },
 };
 
-export default function ZoekopdrachtPagina() {
+export default async function ZoekopdrachtPagina() {
+  // Merken en modellen uit onze eigen voorraad komen er bovenop de standaardlijst bij.
+  await connection();
+  const { data } = await supabase.from("vehicles").select("brand, model");
+  const voorraad = (data ?? []).filter((x) => x.brand && x.model);
+
   return (
     <div className="min-h-screen w-full" style={{ backgroundColor: "#08090B" }}>
       <div
@@ -47,7 +54,7 @@ export default function ZoekopdrachtPagina() {
           .
         </p>
 
-        <ZoekopdrachtForm />
+        <ZoekopdrachtForm voorraad={voorraad} />
 
         <div
           className="flex gap-4 text-xs mt-12 pt-4 border-t"

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { supabase } from "../../../../lib/supabaseClient";
 import { CARROSSERIE_OPTIONS } from "../../../../lib/carrosserie";
+import { MERKEN, modellenVoor } from "../../../../lib/automerken";
 
 export default function BewerkVoertuigPage() {
   const router = useRouter();
@@ -234,6 +235,17 @@ export default function BewerkVoertuigPage() {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          <datalist id="merken">
+            {MERKEN.map((b) => (
+              <option key={b} value={b} />
+            ))}
+          </datalist>
+          <datalist id="modellen">
+            {modellenVoor(brand).map((mo) => (
+              <option key={mo} value={mo} />
+            ))}
+          </datalist>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="sm:col-span-2">
               <label className={labelClass} style={labelStyle}>Voertuignummer</label>
@@ -248,13 +260,13 @@ export default function BewerkVoertuigPage() {
             <div>
               <label className={labelClass} style={labelStyle}>Merk</label>
               <div className={fieldWrap} style={fieldBorder}>
-                <input required value={brand} onChange={(e) => setBrand(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} />
+                <input required list="merken" autoComplete="off" value={brand} onChange={(e) => setBrand(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} />
               </div>
             </div>
             <div>
               <label className={labelClass} style={labelStyle}>Model</label>
               <div className={fieldWrap} style={fieldBorder}>
-                <input required value={model} onChange={(e) => setModel(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} />
+                <input required list="modellen" autoComplete="off" value={model} onChange={(e) => setModel(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} />
               </div>
             </div>
             <div>
@@ -400,7 +412,7 @@ export default function BewerkVoertuigPage() {
                 <p className="text-[11px] mt-1" style={{ color: "#5B6570" }}>Bezoeker kan dit niet wijzigen.</p>
               </div>
               <div>
-                <label className={labelClass} style={labelStyle}>Kentekenvoorbereiding (€)</label>
+                <label className={labelClass} style={labelStyle}>RDW en kentekenplaten (€)</label>
                 <div className={fieldWrap} style={fieldBorder}>
                   <input type="number" step="any" min="0" value={calcKenteken} onChange={(e) => setCalcKenteken(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} placeholder="145" />
                 </div>

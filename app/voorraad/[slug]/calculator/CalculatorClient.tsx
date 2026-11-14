@@ -192,7 +192,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
     ["Bod", h],
     ["Provisie Caronix", fee],
     ["Transport", tr],
-    ["Kentekenvoorbereiding", n(reg)],
+    ["RDW en kentekenplaten", n(reg)],
     ["BPM", n(tax)],
     ["Overig", n(oth)],
   ];
@@ -421,7 +421,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
             <Veld id="tr" label="Transport">
               <Bedragveld id="tr" waarde={naarVeld(tr)} vast />
             </Veld>
-            <Veld id="reg" label="Kentekenvoorbereiding">
+            <Veld id="reg" label="RDW en kentekenplaten">
               <Bedragveld id="reg" waarde={reg} onWijzig={setReg} stap={10} />
             </Veld>
           </div>
@@ -436,7 +436,7 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
           </div>
 
           <p className="text-xs mt-3" style={{ color: "#8A929C" }}>
-            Voorgesteld door Caronix: kenteken {fmt(auto.kenteken)}, BPM {fmt(auto.bpmBtw)}
+            Voorgesteld door Caronix: RDW en kentekenplaten {fmt(auto.kenteken)}, BPM {fmt(auto.bpmBtw)}
             {bpmToelichting}, overig {fmt(auto.overig)}. U kunt deze bedragen zelf aanpassen.
             {auto.bpmBtw > 0 && " De BPM is een indicatie en kan wijzigen."}
           </p>

@@ -46,7 +46,7 @@ const VRAGEN = [
   {
     vraag: "Wat kost een auto mij in totaal?",
     antwoord:
-      "In de kostprijscalculator bij elk voertuig ziet u het bod, de provisie, het transport, de kentekenvoorbereiding, de BPM en overige kosten bij elkaar, plus uw verwachte marge.",
+      "In de kostprijscalculator bij elk voertuig ziet u het bod, de provisie, het transport, de RDW- en kentekenkosten, de BPM en overige kosten bij elkaar, plus uw verwachte marge.",
   },
   {
     vraag: "Hoe lang duurt de levering?",
@@ -182,7 +182,7 @@ export default function HomeSecties({ nieuwste }: { nieuwste: Auto[] }) {
         </h2>
         <p className="text-sm leading-relaxed mb-4 max-w-3xl">
           Bij elk voertuig staat een kostprijscalculator. U vult uw bod in en ziet direct de provisie, het
-          transport, de kentekenvoorbereiding, de BPM en overige kosten, en wat uw marge kan zijn bij uw
+          transport, de RDW- en kentekenkosten, de BPM en overige kosten, en wat uw marge kan zijn bij uw
           verwachte verkoopprijs.
         </p>
         <Link
