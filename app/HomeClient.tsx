@@ -78,13 +78,21 @@ export default function HomeClient({ children }: { children?: React.ReactNode })
         className="md:w-1/2 flex flex-col border-t md:border-t-0 md:border-l"
         style={{ backgroundColor: "#0E1013", borderColor: "#1E2126" }}
       >
-        <div className="flex justify-end items-center gap-3 p-6 md:p-8">
+        <div className="flex flex-wrap justify-end items-center gap-3 p-6 md:p-8">
           <Link
             href="/voorraad"
             className="text-xs px-3 py-1.5 rounded-full border transition-colors"
             style={{ borderColor: "#2A2E34", color: "#8FA0B8" }}
           >
             Voorraad
+          </Link>
+
+          <Link
+            href="/zoekopdracht"
+            className="text-xs px-3 py-1.5 rounded-full border transition-colors"
+            style={{ borderColor: "#2A2E34", color: "#8FA0B8" }}
+          >
+            Zoekopdracht
           </Link>
 
           <Link

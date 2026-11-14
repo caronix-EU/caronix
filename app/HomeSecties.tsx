@@ -69,6 +69,13 @@ export default function HomeSecties({ nieuwste }: { nieuwste: Auto[] }) {
           occasions van particulieren en dealerbedrijven, onder meer uit Denemarken. Per voertuig ziet u
           vooraf wat het u in totaal kost, zodat u weet wat u biedt.
         </p>
+        <p className="text-sm leading-relaxed mt-3">
+          Zoekt u een bepaald voertuig dat nog niet in de voorraad staat?{" "}
+          <Link href="/zoekopdracht" className="underline" style={{ color: "#7FA8D9" }}>
+            Dien een zoekopdracht in
+          </Link>
+          .
+        </p>
       </section>
 
       {/* Zo werkt het */}
