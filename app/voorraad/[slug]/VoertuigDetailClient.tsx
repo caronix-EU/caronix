@@ -106,11 +106,18 @@ function maakBpmDisclaimer(bron: string, peildatum: string | null): string {
   );
 }
 
-export default function VoertuigDetailClient({ id }: { id: string }) {
+export default function VoertuigDetailClient({
+  id,
+  initialVehicle,
+}: {
+  id: string;
+  initialVehicle?: Vehicle | null;
+}) {
   const router = useRouter();
 
-  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
-  const [loading, setLoading] = useState(true);
+  // De server levert de gegevens al mee, zodat de pagina direct (en voor zoekmachines) volledig is.
+  const [vehicle, setVehicle] = useState<Vehicle | null>(initialVehicle ?? null);
+  const [loading, setLoading] = useState(!initialVehicle);
   const [notFound, setNotFound] = useState(false);
   const [currentPhoto, setCurrentPhoto] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -126,6 +133,7 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
   }, []);
 
   useEffect(() => {
+    if (initialVehicle) return; // gegevens zijn al van de server gekomen
     async function fetchVehicle() {
       const { data, error } = await supabase.from("vehicles").select("*").eq("id", id).single();
       if (error || !data) {
@@ -137,7 +145,7 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
       setLoading(false);
     }
     if (id) fetchVehicle();
-  }, [id]);
+  }, [id, initialVehicle]);
 
   async function handleDelete() {
     if (!vehicle) return;
@@ -184,6 +192,7 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
 
   const registrationFormatted = vehicle.registration
     ? new Date(vehicle.registration).toLocaleDateString("nl-NL", {
+        timeZone: "UTC",
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
@@ -197,6 +206,7 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
   const BPM_BRON = "Autotelex Import";
   const bpmPeildatumFormatted = vehicle.bpm_peildatum
     ? new Date(vehicle.bpm_peildatum).toLocaleDateString("nl-NL", {
+        timeZone: "UTC",
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
@@ -616,11 +626,8 @@ export default function VoertuigDetailClient({ id }: { id: string }) {
 
           {/* Specificaties */}
           <div>
-            <div className="text-sm" style={{ color: "#8A929C" }}>
-              {vehicle.brand}
-            </div>
             <h1 className="text-2xl mb-1" style={{ color: "#F2F3F4", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600 }}>
-              {vehicle.model}
+              {vehicle.brand} {vehicle.model}
             </h1>
             {vehicle.uitvoering && (
               <div className="text-sm mb-1" style={{ color: "#B7BEC7" }}>

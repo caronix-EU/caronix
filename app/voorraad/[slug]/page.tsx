@@ -17,12 +17,63 @@ const vindAuto = cache(async (slug: string) => {
 
   const { data } = await supabase
     .from("vehicles")
-    .select("id, voertuignummer, brand, model, uitvoering, price, photo_urls")
+    .select(
+      "id, voertuignummer, brand, model, uitvoering, btw_type, registration, price, km, fuel, co2, body_type, vin, bpm_indicatie, bpm_peildatum, color, transmission, country, photo_urls"
+    )
     .eq("voertuignummer", nummer)
     .maybeSingle();
 
   return data;
 });
+
+// Titel: merk, model, uitvoering en bouwjaar. Is hij te lang, dan vallen de laatste woorden van de uitvoering af.
+function maakTitel(auto: {
+  brand: string;
+  model: string;
+  uitvoering: string | null;
+  registration: string | null;
+}): string {
+  const jaar = auto.registration ? new Date(auto.registration).getUTCFullYear() : null;
+  const basis = [auto.brand, auto.model, auto.uitvoering].filter(Boolean).join(" ");
+  const eind = (jaar ? ` (${jaar})` : "") + " | Caronix";
+  const max = 70 - eind.length;
+  const woorden = basis.split(" ");
+  while (woorden.length > 2 && woorden.join(" ").length > max) woorden.pop();
+  return woorden.join(" ") + eind;
+}
+
+// Omschrijving: de belangrijkste kenmerken eerst. Kenmerken die niet meer passen, laten we weg,
+// zodat de zin nooit midden in een woord eindigt.
+function maakOmschrijving(auto: {
+  brand: string;
+  model: string;
+  uitvoering: string | null;
+  registration: string | null;
+  km: number | null;
+  fuel: string | null;
+  transmission: string | null;
+  country: string | null;
+  price: number | null;
+}): string {
+  const jaar = auto.registration ? new Date(auto.registration).getUTCFullYear() : null;
+  const naam = [auto.brand, auto.model, auto.uitvoering].filter(Boolean).join(" ");
+  const kenmerken = [
+    jaar ? `bouwjaar ${jaar}` : null,
+    auto.km ? `${Number(auto.km).toLocaleString("nl-NL")} km` : null,
+    auto.price ? `vraagprijs € ${Number(auto.price).toLocaleString("nl-NL")}` : null,
+    auto.fuel,
+    auto.transmission,
+    auto.country ? `herkomst ${auto.country}` : null,
+  ].filter(Boolean) as string[];
+
+  const slot = ". Zakelijk aanbod van Caronix.";
+  let tekst = naam;
+  for (const k of kenmerken) {
+    if ((tekst + ", " + k + slot).length > 160) break;
+    tekst += ", " + k;
+  }
+  return tekst + slot;
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -32,10 +83,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "Voertuig niet gevonden | Caronix", robots: { index: false } };
   }
 
-  const title = `${auto.brand} ${auto.model} | Caronix`;
-  const description = `${auto.brand} ${auto.model}${
-    auto.uitvoering ? " - " + auto.uitvoering : ""
-  }${auto.price ? " - € " + Number(auto.price).toLocaleString("nl-NL") : ""} - Bekijk dit voertuig bij Caronix.`;
+  const title = maakTitel(auto);
+  const description = maakOmschrijving(auto);
   const eersteFoto = auto.photo_urls && auto.photo_urls.length > 0 ? auto.photo_urls[0] : null;
 
   return {
@@ -65,5 +114,5 @@ export default async function VoertuigPagina({ params }: Props) {
     permanentRedirect(`/voorraad/${juisteSlug}`);
   }
 
-  return <VoertuigDetailClient id={String(auto.id)} />;
+  return <VoertuigDetailClient id={String(auto.id)} initialVehicle={auto} />;
 }
