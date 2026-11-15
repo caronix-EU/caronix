@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { supabase } from "../../../../lib/supabaseClient";
 import { CARROSSERIE_OPTIONS } from "../../../../lib/carrosserie";
-import { MERKEN, modellenVoor } from "../../../../lib/automerken";
+import { MERKEN, modellenVoor, toonLijst } from "../../../../lib/automerken";
 
 export default function BewerkVoertuigPage() {
   const router = useRouter();
@@ -260,13 +260,27 @@ export default function BewerkVoertuigPage() {
             <div>
               <label className={labelClass} style={labelStyle}>Merk</label>
               <div className={fieldWrap} style={fieldBorder}>
-                <input required list="merken" autoComplete="off" value={brand} onChange={(e) => setBrand(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} />
+                <div className="relative">
+                  <input id="merk-veld" required list="merken" autoComplete="off" value={brand} onChange={(e) => setBrand(e.target.value)} className="w-full bg-transparent outline-none text-sm pr-7 [&::-webkit-calendar-picker-indicator]:hidden" style={inputStyle} />
+                  <button type="button" tabIndex={-1} aria-label="Toon merken" onClick={() => toonLijst("merk-veld")} className="absolute right-0 top-1/2 -translate-y-1/2" style={{ color: "#8A929C" }}>
+                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" strokeWidth={1.6}>
+                      <path d="M1 1.5l5 5 5-5" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
             <div>
               <label className={labelClass} style={labelStyle}>Model</label>
               <div className={fieldWrap} style={fieldBorder}>
-                <input required list="modellen" autoComplete="off" value={model} onChange={(e) => setModel(e.target.value)} className="w-full bg-transparent outline-none text-sm" style={inputStyle} />
+                <div className="relative">
+                  <input id="model-veld" required list="modellen" autoComplete="off" value={model} onChange={(e) => setModel(e.target.value)} className="w-full bg-transparent outline-none text-sm pr-7 [&::-webkit-calendar-picker-indicator]:hidden" style={inputStyle} />
+                  <button type="button" tabIndex={-1} aria-label="Toon modellen" onClick={() => toonLijst("model-veld")} className="absolute right-0 top-1/2 -translate-y-1/2" style={{ color: "#8A929C" }}>
+                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" strokeWidth={1.6}>
+                      <path d="M1 1.5l5 5 5-5" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
             <div>

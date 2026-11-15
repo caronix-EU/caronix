@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { MERKEN, modellenVoor, normaliseer, uniek, vindMerk } from "../../lib/automerken";
+import { MERKEN, modellenVoor, normaliseer, toonLijst, uniek, vindMerk } from "../../lib/automerken";
 
 // Hier komen de zoekopdrachten binnen.
 const CONTACT = "info@caronix.nl";
@@ -24,6 +24,46 @@ function Veld({ id, label, children }: { id: string; label: string; children: Re
         {label}
       </label>
       {children}
+    </div>
+  );
+}
+
+// Keuzelijst met een eigen pijltje, zodat die ook op een donkere achtergrond altijd zichtbaar is.
+function Keuze({
+  id,
+  waarde,
+  onChange,
+  opties,
+}: {
+  id: string;
+  waarde: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  opties: { waarde: string; label: string }[];
+}) {
+  return (
+    <div className="relative">
+      <select
+        id={id}
+        value={waarde}
+        onChange={onChange}
+        className={inputClass + " appearance-none"}
+        style={{ ...inputStyle, paddingRight: 40 }}
+      >
+        <option value="">Geen voorkeur</option>
+        {opties.map((o) => (
+          <option key={o.waarde} value={o.waarde}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      <span
+        className="absolute top-0 bottom-0 right-0 flex items-center justify-center pointer-events-none"
+        style={{ width: 40, color: "#8A929C" }}
+      >
+        <svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" strokeWidth={1.6}>
+        <path d="M1 1.5l5 5 5-5" />
+      </svg>
+      </span>
     </div>
   );
 }
@@ -84,6 +124,13 @@ export default function ZoekopdrachtForm({
     ...modellenVoor(v.merk),
     ...(gekozen ? voorraad.filter((x) => normaliseer(x.brand) === normaliseer(gekozen)).map((x) => x.model) : []),
   ]);
+
+  // Budget verhogen of verlagen met de pijltjes (stap van 500 euro)
+  const stapBudget = (richting: 1 | -1) =>
+    setV((p) => {
+      const huidig = Number(p.budget.replace(/\./g, "")) || 0;
+      return { ...p, budget: opmaak(String(Math.max(0, huidig + richting * 500))) };
+    });
 
   const huidigJaar = new Date().getFullYear();
   const jaren = Array.from({ length: 14 }, (_, i) => huidigJaar - i);
@@ -157,7 +204,14 @@ export default function ZoekopdrachtForm({
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Veld id="merk" label="Merk *">
-            <input id="merk" list="merken" autoComplete="off" value={v.merk} onChange={zet("merk")} className={inputClass} style={inputStyle} placeholder="Toyota" />
+            <div className="relative">
+              <input id="merk" list="merken" autoComplete="off" value={v.merk} onChange={zet("merk")} className={inputClass + " [&::-webkit-calendar-picker-indicator]:hidden"} style={{ ...inputStyle, paddingRight: 40 }} placeholder="Toyota" />
+              <button type="button" tabIndex={-1} aria-label="Toon merken" onClick={() => toonLijst("merk")} className="absolute top-0 bottom-0 right-0 flex items-center justify-center" style={{ width: 40, color: "#8A929C" }}>
+                <svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" strokeWidth={1.6}>
+                  <path d="M1 1.5l5 5 5-5" />
+                </svg>
+              </button>
+            </div>
             <datalist id="merken">
               {merken.map((b) => (
                 <option key={b} value={b} />
@@ -165,7 +219,14 @@ export default function ZoekopdrachtForm({
             </datalist>
           </Veld>
           <Veld id="model" label="Model">
-            <input id="model" list="modellen" autoComplete="off" value={v.model} onChange={zet("model")} className={inputClass} style={inputStyle} placeholder="Yaris Cross" />
+            <div className="relative">
+              <input id="model" list="modellen" autoComplete="off" value={v.model} onChange={zet("model")} className={inputClass + " [&::-webkit-calendar-picker-indicator]:hidden"} style={{ ...inputStyle, paddingRight: 40 }} placeholder="Yaris Cross" />
+              <button type="button" tabIndex={-1} aria-label="Toon modellen" onClick={() => toonLijst("model")} className="absolute top-0 bottom-0 right-0 flex items-center justify-center" style={{ width: 40, color: "#8A929C" }}>
+                <svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" strokeWidth={1.6}>
+                  <path d="M1 1.5l5 5 5-5" />
+                </svg>
+              </button>
+            </div>
             <datalist id="modellen">
               {modellen.map((mo) => (
                 <option key={mo} value={mo} />
@@ -173,44 +234,16 @@ export default function ZoekopdrachtForm({
             </datalist>
           </Veld>
           <Veld id="bouwjaar" label="Bouwjaar vanaf">
-            <select id="bouwjaar" value={v.bouwjaar} onChange={zet("bouwjaar")} className={inputClass} style={inputStyle}>
-              <option value="">Geen voorkeur</option>
-              {jaren.map((j) => (
-                <option key={j} value={String(j)}>
-                  {j}
-                </option>
-              ))}
-            </select>
+            <Keuze id="bouwjaar" waarde={v.bouwjaar} onChange={zet("bouwjaar")} opties={jaren.map((j) => ({ waarde: String(j), label: String(j) }))} />
           </Veld>
           <Veld id="km" label="Kilometerstand tot">
-            <select id="km" value={v.km} onChange={zet("km")} className={inputClass} style={inputStyle}>
-              <option value="">Geen voorkeur</option>
-              {KM_OPTIES.map((k) => (
-                <option key={k} value={String(k)}>
-                  {k.toLocaleString("nl-NL")} km
-                </option>
-              ))}
-            </select>
+            <Keuze id="km" waarde={v.km} onChange={zet("km")} opties={KM_OPTIES.map((k) => ({ waarde: String(k), label: k.toLocaleString("nl-NL") + " km" }))} />
           </Veld>
           <Veld id="brandstof" label="Brandstof">
-            <select id="brandstof" value={v.brandstof} onChange={zet("brandstof")} className={inputClass} style={inputStyle}>
-              <option value="">Geen voorkeur</option>
-              {BRANDSTOF_OPTIES.map((o) => (
-                <option key={o} value={o}>
-                  {o}
-                </option>
-              ))}
-            </select>
+            <Keuze id="brandstof" waarde={v.brandstof} onChange={zet("brandstof")} opties={BRANDSTOF_OPTIES.map((o) => ({ waarde: o, label: o }))} />
           </Veld>
           <Veld id="transmissie" label="Transmissie">
-            <select id="transmissie" value={v.transmissie} onChange={zet("transmissie")} className={inputClass} style={inputStyle}>
-              <option value="">Geen voorkeur</option>
-              {TRANSMISSIE_OPTIES.map((o) => (
-                <option key={o} value={o}>
-                  {o}
-                </option>
-              ))}
-            </select>
+            <Keuze id="transmissie" waarde={v.transmissie} onChange={zet("transmissie")} opties={TRANSMISSIE_OPTIES.map((o) => ({ waarde: o, label: o }))} />
           </Veld>
           <Veld id="budget" label="Budget tot per voertuig">
             <div className="relative">
@@ -230,20 +263,40 @@ export default function ZoekopdrachtForm({
                   setV((p) => ({ ...p, budget: waarde }));
                 }}
                 className={inputClass}
-                style={{ ...inputStyle, paddingLeft: 32 }}
+                style={{ ...inputStyle, paddingLeft: 32, paddingRight: 44 }}
                 placeholder="20.000"
               />
+              <div
+                className="absolute top-0 bottom-0 right-0 flex flex-col border-l overflow-hidden"
+                style={{ width: 36, borderColor: "#2A2E34", borderRadius: "0 6px 6px 0" }}
+              >
+                <button
+                  type="button"
+                  onClick={() => stapBudget(1)}
+                  aria-label="Budget verhogen"
+                  className="flex-1 flex items-center justify-center w-full"
+                  style={{ color: "#8A929C" }}
+                >
+                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                    <path d="M1 5l4-4 4 4" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => stapBudget(-1)}
+                  aria-label="Budget verlagen"
+                  className="flex-1 flex items-center justify-center w-full border-t"
+                  style={{ color: "#8A929C", borderColor: "#2A2E34" }}
+                >
+                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                    <path d="M1 1l4 4 4-4" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </Veld>
           <Veld id="aantal" label="Aantal voertuigen">
-            <select id="aantal" value={v.aantal} onChange={zet("aantal")} className={inputClass} style={inputStyle}>
-              <option value="">Geen voorkeur</option>
-              {AANTAL_OPTIES.map((o) => (
-                <option key={o} value={o}>
-                  {o}
-                </option>
-              ))}
-            </select>
+            <Keuze id="aantal" waarde={v.aantal} onChange={zet("aantal")} opties={AANTAL_OPTIES.map((o) => ({ waarde: o, label: o }))} />
           </Veld>
         </div>
         <div className="mt-4">
