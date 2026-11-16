@@ -153,16 +153,3 @@ export function uniek(lijst: string[]): string[] {
   }
   return uit;
 }
-
-// Opent de lijst met suggesties bij een invoerveld (voor het pijltje naast het veld).
-// Niet alle browsers kunnen de lijst direct openen; dan zet dit de cursor in het veld en verschijnt de lijst bij typen.
-export function toonLijst(id: string): void {
-  const el = document.getElementById(id) as (HTMLInputElement & { showPicker?: () => void }) | null;
-  if (!el) return;
-  el.focus();
-  try {
-    el.showPicker?.();
-  } catch {
-    // niet ondersteund: de cursor staat in het veld
-  }
-}

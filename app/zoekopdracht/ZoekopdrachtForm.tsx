@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { MERKEN, modellenVoor, normaliseer, toonLijst, uniek, vindMerk } from "../../lib/automerken";
+import { MERKEN, modellenVoor, normaliseer, uniek, vindMerk } from "../../lib/automerken";
+import Combobox from "../../lib/Combobox";
 
 // Hier komen de zoekopdrachten binnen.
 const CONTACT = "info@caronix.nl";
@@ -92,7 +93,7 @@ const LEEG: Invoer = {
   km: "",
   brandstof: "",
   transmissie: "",
-  budget: "",
+  budget: "20.000",
   aantal: "",
   wensen: "",
   bedrijf: "",
@@ -128,7 +129,7 @@ export default function ZoekopdrachtForm({
   // Budget verhogen of verlagen met de pijltjes (stap van 500 euro)
   const stapBudget = (richting: 1 | -1) =>
     setV((p) => {
-      const huidig = Number(p.budget.replace(/\./g, "")) || 0;
+      const huidig = p.budget.trim() === "" ? 20000 : Number(p.budget.replace(/\./g, "")) || 0;
       return { ...p, budget: opmaak(String(Math.max(0, huidig + richting * 500))) };
     });
 
@@ -204,34 +205,24 @@ export default function ZoekopdrachtForm({
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Veld id="merk" label="Merk *">
-            <div className="relative">
-              <input id="merk" list="merken" autoComplete="off" value={v.merk} onChange={zet("merk")} className={inputClass + " [&::-webkit-calendar-picker-indicator]:hidden"} style={{ ...inputStyle, paddingRight: 40 }} placeholder="Toyota" />
-              <button type="button" tabIndex={-1} aria-label="Toon merken" onClick={() => toonLijst("merk")} className="absolute top-0 bottom-0 right-0 flex items-center justify-center" style={{ width: 40, color: "#8A929C" }}>
-                <svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" strokeWidth={1.6}>
-                  <path d="M1 1.5l5 5 5-5" />
-                </svg>
-              </button>
-            </div>
-            <datalist id="merken">
-              {merken.map((b) => (
-                <option key={b} value={b} />
-              ))}
-            </datalist>
+            <Combobox
+              id="merk"
+              waarde={v.merk}
+              onChange={(w) => setV((p) => ({ ...p, merk: w }))}
+              opties={merken}
+              className={inputClass}
+              style={{ ...inputStyle, paddingRight: 40 }}
+            />
           </Veld>
           <Veld id="model" label="Model">
-            <div className="relative">
-              <input id="model" list="modellen" autoComplete="off" value={v.model} onChange={zet("model")} className={inputClass + " [&::-webkit-calendar-picker-indicator]:hidden"} style={{ ...inputStyle, paddingRight: 40 }} placeholder="Yaris Cross" />
-              <button type="button" tabIndex={-1} aria-label="Toon modellen" onClick={() => toonLijst("model")} className="absolute top-0 bottom-0 right-0 flex items-center justify-center" style={{ width: 40, color: "#8A929C" }}>
-                <svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" strokeWidth={1.6}>
-                  <path d="M1 1.5l5 5 5-5" />
-                </svg>
-              </button>
-            </div>
-            <datalist id="modellen">
-              {modellen.map((mo) => (
-                <option key={mo} value={mo} />
-              ))}
-            </datalist>
+            <Combobox
+              id="model"
+              waarde={v.model}
+              onChange={(w) => setV((p) => ({ ...p, model: w }))}
+              opties={modellen}
+              className={inputClass}
+              style={{ ...inputStyle, paddingRight: 40 }}
+            />
           </Veld>
           <Veld id="bouwjaar" label="Bouwjaar vanaf">
             <Keuze id="bouwjaar" waarde={v.bouwjaar} onChange={zet("bouwjaar")} opties={jaren.map((j) => ({ waarde: String(j), label: String(j) }))} />
@@ -264,7 +255,7 @@ export default function ZoekopdrachtForm({
                 }}
                 className={inputClass}
                 style={{ ...inputStyle, paddingLeft: 32, paddingRight: 44 }}
-                placeholder="20.000"
+                placeholder="Optioneel"
               />
               <div
                 className="absolute top-0 bottom-0 right-0 flex flex-col border-l overflow-hidden"
