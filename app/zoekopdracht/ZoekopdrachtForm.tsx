@@ -84,6 +84,7 @@ type Invoer = {
   email: string;
   telefoon: string;
   kvk: string;
+  btw: string;
 };
 
 const LEEG: Invoer = {
@@ -101,6 +102,7 @@ const LEEG: Invoer = {
   email: "",
   telefoon: "",
   kvk: "",
+  btw: "",
 };
 
 const KM_OPTIES = [10000, 25000, 50000, 75000, 100000, 125000, 150000, 200000];
@@ -162,7 +164,8 @@ export default function ZoekopdrachtForm({
       regel("Naam", v.naam) +
       regel("E-mail", v.email) +
       regel("Telefoon", v.telefoon) +
-      regel("KvK-nummer", v.kvk)
+      regel("KvK-nummer", v.kvk) +
+      regel("BTW-nummer", v.btw)
     );
   }
 
@@ -173,6 +176,8 @@ export default function ZoekopdrachtForm({
     if (!v.bedrijf.trim()) f.push("Vul uw bedrijfsnaam in.");
     if (!v.naam.trim()) f.push("Vul uw naam in.");
     if (!/^\S+@\S+\.\S+$/.test(v.email.trim())) f.push("Vul een geldig e-mailadres in.");
+    if (!v.btw.trim()) f.push("Vul uw BTW-nummer in.");
+    else if (!/^[A-Z]{2}[A-Z0-9]{6,14}$/.test(v.btw)) f.push("Controleer uw BTW-nummer. Het begint met een landcode, bijvoorbeeld NL.");
     setFouten(f);
     if (f.length > 0) return;
 
@@ -328,6 +333,23 @@ export default function ZoekopdrachtForm({
           </Veld>
           <Veld id="kvk" label="KvK-nummer">
             <input id="kvk" value={v.kvk} onChange={zet("kvk")} className={inputClass} style={inputStyle} inputMode="numeric" />
+          </Veld>
+          <Veld id="btw" label="BTW-nummer *">
+            <input
+              id="btw"
+              value={v.btw}
+              onChange={(e) => {
+                const waarde = e.target.value.toUpperCase().replace(/[\s.\-]/g, ""); // hoofdletters, zonder spaties en punten
+                setV((p) => ({ ...p, btw: waarde }));
+              }}
+              className={inputClass}
+              style={inputStyle}
+              autoComplete="off"
+              aria-describedby="btw-hint"
+            />
+            <p id="btw-hint" className="text-[11px] mt-1" style={{ color: "#8A929C" }}>
+              Met landcode, bijvoorbeeld NL123456789B01.
+            </p>
           </Veld>
         </div>
       </div>
