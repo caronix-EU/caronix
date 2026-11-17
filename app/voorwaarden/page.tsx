@@ -76,15 +76,24 @@ export default function VoorwaardenPage() {
         </h2>
         <p className="mb-3">
           Een zakelijke koper kan via de kostprijscalculator op deze website een bod uitbrengen op
-          een voertuig. Caronix legt dat bod voor aan de verkoper van het voertuig. Gaat de
-          verkoper akkoord met het bod, dan is het bod bindend en wordt het voertuig aan de koper
-          toegewezen. Caronix stuurt de koper daarna een factuur, die de koper betaalt vóór het
-          transport.
+          een voertuig. Caronix bemiddelt en legt dat bod voor aan de verkoper van het voertuig. De
+          koopovereenkomst komt tot stand tussen de koper en de verkoper; Caronix is geen partij bij
+          die overeenkomst. Gaat de verkoper akkoord met het bod, dan is het bod bindend en wordt
+          het voertuig aan de koper toegewezen.
+        </p>
+        <p className="mb-3">
+          De koper betaalt de auto aan de verkoper. Caronix factureert de koper alleen provisie en
+          transport. De koper betaalt dit alles voordat het transport begint.
         </p>
         <p className="mb-3">
           Wijst de verkoper het bod af, dan laat Caronix dit de koper weten. Doet de verkoper een
           tegenbod, dan legt Caronix dat aan de koper voor. Een tegenbod is voor de koper pas
           bindend nadat hij daarmee akkoord is gegaan.
+        </p>
+        <p className="mb-3">
+          Na aflevering van het voertuig tekent de koper de CMR en stuurt hij de getekende CMR na
+          ontvangst terug aan Caronix. Nadat Caronix de getekende CMR heeft ontvangen, verstuurt
+          Caronix de kentekenpapieren naar de koper. Het Nederlandse kenteken regelt de koper zelf.
         </p>
         <p className="mb-6">
           Andere overeenkomsten tot koop of verkoop van een voertuig komen niet tot stand via deze

@@ -25,11 +25,12 @@ const STAPPEN = [
   {
     titel: "Breng een bod uit",
     tekst:
-      "Wij leggen uw bod voor aan de verkoper. Bij akkoord wordt het voertuig aan u toegewezen en volgt de factuur.",
+      "Wij leggen uw bod voor aan de verkoper. Bij akkoord wordt het voertuig aan u toegewezen.",
   },
   {
     titel: "Betaling en levering",
-    tekst: "U betaalt vóór het transport. De levering duurt ongeveer 3 tot 4 weken na betaling.",
+    tekst:
+      "U betaalt de auto aan de Deense verkoper en provisie en transport aan Caronix, voordat het transport begint. De levering duurt ongeveer 3 tot 4 weken na betaling.",
   },
 ];
 
@@ -37,6 +38,11 @@ const VRAGEN = [
   {
     vraag: "Voor wie is Caronix bedoeld?",
     antwoord: "Voor autobedrijven. Het aanbod en de calculator zijn uitsluitend bedoeld voor zakelijke kopers.",
+  },
+  {
+    vraag: "Van wie koop ik de auto?",
+    antwoord:
+      "Rechtstreeks van de Deense verkoper. Caronix bemiddelt en factureert alleen provisie en transport.",
   },
   {
     vraag: "Waar komen de auto's vandaan?",
@@ -66,8 +72,9 @@ export default function HomeSecties({ nieuwste }: { nieuwste: Auto[] }) {
         </h2>
         <p className="text-sm leading-relaxed">
           Caronix bemiddelt in de in- en verkoop van personenauto&apos;s binnen de EU. In de voorraad staan
-          occasions van particulieren en dealerbedrijven, onder meer uit Denemarken. Per voertuig ziet u
-          vooraf wat het u in totaal kost, zodat u weet wat u biedt.
+          occasions van particulieren en dealerbedrijven, onder meer uit Denemarken. U koopt
+          rechtstreeks van de verkoper; Caronix bemiddelt. Per voertuig ziet u vooraf wat het u in totaal kost,
+          zodat u weet wat u biedt.
         </p>
         <p className="text-sm leading-relaxed mt-3">
           Zoekt u een bepaald voertuig dat nog niet in de voorraad staat?{" "}
@@ -107,6 +114,11 @@ export default function HomeSecties({ nieuwste }: { nieuwste: Auto[] }) {
             </li>
           ))}
         </ol>
+        <p className="text-sm mt-4">
+          <Link href="/zo-werkt-het" className="underline" style={{ color: "#7FA8D9" }}>
+            Lees het volledige proces, met wie wat regelt en wat u betaalt →
+          </Link>
+        </p>
       </section>
 
       {/* Nieuwste voertuigen */}

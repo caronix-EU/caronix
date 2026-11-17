@@ -36,7 +36,7 @@ const STAPPEN = [
   { titel: "Wij leggen uw bod voor aan de verkoper", tekst: "De eigenaar van het voertuig krijgt uw bod van ons voorgelegd. De reactietijd hangt af van de verkoper; wij laten het u weten zodra wij antwoord hebben." },
   {
     titel: "Akkoord van de verkoper: bindend",
-    tekst: "Gaat de verkoper akkoord, dan is uw bod bindend en wordt het voertuig aan u toegewezen. U ontvangt de factuur en betaalt vóór het transport.",
+    tekst: "Gaat de verkoper akkoord, dan is uw bod bindend en wordt het voertuig aan u toegewezen. U koopt rechtstreeks van de verkoper en betaalt de auto aan hem. Caronix factureert alleen provisie en transport. U betaalt alles voordat het transport begint.",
   },
   {
     titel: "Afwijzing of tegenbod",
@@ -576,7 +576,10 @@ export default function CalculatorClient({ auto }: { auto: CalcAuto }) {
             ))}
           </ol>
           <p className="text-xs mt-3 pt-3 border-t" style={{ borderColor: "#1E2126", color: "#8A929C" }}>
-            Levering: ongeveer 3 tot 4 weken na betaling.
+            Levering: ongeveer 3 tot 4 weken na betaling.{" "}
+            <Link href="/zo-werkt-het" className="underline" style={{ color: "#7FA8D9" }}>
+              Lees het volledige proces
+            </Link>
           </p>
         </div>
 
