@@ -65,26 +65,6 @@ const kop = { color: "#F2F3F4", fontFamily: "'Space Grotesk', sans-serif", fontW
 export default function HomeSecties({ nieuwste }: { nieuwste: Auto[] }) {
   return (
     <div className="px-6 md:px-10 py-14 max-w-5xl mx-auto" style={{ color: "#B7BEC7" }}>
-      {/* Wat wij doen */}
-      <section className="mb-16 max-w-3xl">
-        <h2 className="text-2xl mb-4" style={kop}>
-          Auto&apos;s inkopen in de EU voor autobedrijven
-        </h2>
-        <p className="text-sm leading-relaxed">
-          Caronix bemiddelt in de in- en verkoop van personenauto&apos;s binnen de EU. In de voorraad staan
-          occasions van particulieren en dealerbedrijven, onder meer uit Denemarken. U koopt
-          rechtstreeks van de verkoper; Caronix bemiddelt. Per voertuig ziet u vooraf wat het u in totaal kost,
-          zodat u weet wat u biedt.
-        </p>
-        <p className="text-sm leading-relaxed mt-3">
-          Zoekt u een bepaald voertuig dat nog niet in de voorraad staat?{" "}
-          <Link href="/zoekopdracht" className="underline" style={{ color: "#7FA8D9" }}>
-            Dien een zoekopdracht in
-          </Link>
-          .
-        </p>
-      </section>
-
       {/* Zo werkt het */}
       <section className="mb-16">
         <h2 className="text-2xl mb-6" style={kop}>
@@ -118,6 +98,13 @@ export default function HomeSecties({ nieuwste }: { nieuwste: Auto[] }) {
           <Link href="/zo-werkt-het" className="underline" style={{ color: "#7FA8D9" }}>
             Lees het volledige proces, met wie wat regelt en wat u betaalt →
           </Link>
+        </p>
+        <p className="text-sm mt-2">
+          Zoekt u een bepaald voertuig dat nog niet in de voorraad staat?{" "}
+          <Link href="/zoekopdracht" className="underline" style={{ color: "#7FA8D9" }}>
+            Dien een zoekopdracht in
+          </Link>
+          .
         </p>
       </section>
 

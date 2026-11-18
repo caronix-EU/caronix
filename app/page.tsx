@@ -6,7 +6,7 @@ import HomeSecties from "./HomeSecties";
 
 export const metadata: Metadata = {
   description:
-    "Caronix is een auto groothandel voor autobedrijven. Bekijk het aanbod occasions uit de EU, bereken de kostprijs en breng een bod uit.",
+    "Caronix bemiddelt voor autobedrijven bij de inkoop van auto's uit de EU, onder meer Denemarken. Bekijk het aanbod, bereken de kostprijs en breng een bod uit.",
   alternates: { canonical: "/" },
 };
 

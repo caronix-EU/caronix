@@ -33,7 +33,7 @@ export default function HomeClient({ children }: { children?: React.ReactNode })
       loginBtn: "Login",
       companyHeading: "Caronix: B2B Cartrading & Sourcing",
       companyText:
-        "Caronix is een auto groothandel die bemiddelt voor autobedrijven in de in- en verkoop van personenauto's binnen de EU. Met ruim 25 jaar ervaring in de branche bieden wij een transparante en efficiente manier om uw wagenpark uit te breiden - zonder omwegen.",
+        "Caronix bemiddelt voor autobedrijven bij de inkoop van personenauto's uit de EU, onder meer uit Denemarken. U kiest een voertuig en koopt rechtstreeks van de verkoper. Wij bemiddelen en zorgen dat de auto bij u wordt afgeleverd. Per voertuig ziet u vooraf wat het u in totaal kost, zodat u weet wat u biedt.",
     },
     EN: {
       loginTitle: "Log in to your account",
@@ -46,7 +46,7 @@ export default function HomeClient({ children }: { children?: React.ReactNode })
       loginBtn: "Login",
       companyHeading: "Caronix: B2B Cartrading & Sourcing",
       companyText:
-        "Caronix is a car wholesaler that brokers vehicle trade for dealers, handling the purchase and sale of passenger cars across the EU. With over 25 years of experience in the industry, we offer a transparent and efficient way to expand your fleet - without the hassle.",
+        "Caronix brokers the purchase of passenger cars from the EU for car dealers, including from Denmark. You choose a vehicle and buy directly from the seller. We mediate and make sure the car is delivered to you. For every vehicle you see up front what it costs you in total, so you know what you are bidding.",
     },
   }[lang];
 
@@ -85,6 +85,14 @@ export default function HomeClient({ children }: { children?: React.ReactNode })
             style={{ borderColor: "#2A2E34", color: "#8FA0B8" }}
           >
             Voorraad
+          </Link>
+
+          <Link
+            href="/zo-werkt-het"
+            className="text-xs px-3 py-1.5 rounded-full border transition-colors"
+            style={{ borderColor: "#2A2E34", color: "#8FA0B8" }}
+          >
+            Zo werkt het
           </Link>
 
           <Link
@@ -135,17 +143,7 @@ export default function HomeClient({ children }: { children?: React.ReactNode })
         <div className="flex-1 flex items-center justify-center px-8 md:px-16">
           <div className="w-full max-w-sm">
             <div className="flex flex-col items-center text-center mb-10">
-              <svg width="48" height="48" viewBox="0 0 100 100" className="mb-3">
-                <circle cx="50" cy="50" r="30" fill="none" stroke="#3E4750" strokeWidth={2} />
-                <path d="M50 20 Q65 50 50 80 M20 50 h60" stroke="#3E4750" strokeWidth={1} fill="none" opacity={0.7} />
-                <path d="M10 68 C35 68 55 35 92 14" stroke="url(#swoosh)" strokeWidth={6} fill="none" strokeLinecap="round" />
-                <defs>
-                  <linearGradient id="swoosh" x1="0" y1="1" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#2E5A94" />
-                    <stop offset="100%" stopColor="#7FA8D9" />
-                  </linearGradient>
-                </defs>
-              </svg>
+              <img src="/logo-caronix.png" alt="Caronix logo" width={120} height={120} className="mb-3" />
               <div className="text-3xl tracking-tight" style={chrome}>
                 CARONIX
               </div>
