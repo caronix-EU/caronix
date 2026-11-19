@@ -35,22 +35,7 @@ export default function ContactPage() {
 
       <div className="flex-1 flex items-center justify-center px-6">
         <div className="w-full max-w-md text-center">
-          <svg width="48" height="48" viewBox="0 0 100 100" className="mb-4 mx-auto">
-            <circle cx="50" cy="50" r="30" fill="none" stroke="#3E4750" strokeWidth={2} />
-            <path
-              d="M10 68 C35 68 55 35 92 14"
-              stroke="url(#swoosh)"
-              strokeWidth={6}
-              fill="none"
-              strokeLinecap="round"
-            />
-            <defs>
-              <linearGradient id="swoosh" x1="0" y1="1" x2="1" y2="0">
-                <stop offset="0%" stopColor="#2E5A94" />
-                <stop offset="100%" stopColor="#7FA8D9" />
-              </linearGradient>
-            </defs>
-          </svg>
+          <img src="/logo-caronix.png" alt="Caronix logo" width={96} height={96} className="mb-4 mx-auto" />
 
           <h1
             className="text-2xl mb-2"
@@ -59,7 +44,7 @@ export default function ContactPage() {
             Neem contact op
           </h1>
           <p className="text-sm mb-10" style={{ color: "#7A828C" }}>
-            Heb je een vraag, wil je een voertuig bespreken, of gewoon even sparren? Stuur ons een e-mail.
+            Heeft u een vraag, wilt u een voertuig bespreken, of wilt u even sparren? Stuur ons een e-mail.
           </p>
 
           <a
@@ -79,7 +64,7 @@ export default function ContactPage() {
           </a>
 
           <p className="mt-4 text-xs" style={{ color: "#4E555E" }}>
-            Klik op het e-mailadres om je mailprogramma te openen.
+            Klik op het e-mailadres om uw mailprogramma te openen.
           </p>
         </div>
       </div>

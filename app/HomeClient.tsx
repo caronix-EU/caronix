@@ -33,7 +33,7 @@ export default function HomeClient({ children }: { children?: React.ReactNode })
       loginBtn: "Login",
       companyHeading: "Caronix: B2B Cartrading & Sourcing",
       companyText:
-        "Caronix bemiddelt voor autobedrijven bij de inkoop van personenauto's uit de EU, onder meer uit Denemarken. U kiest een voertuig en koopt rechtstreeks van de verkoper. Wij bemiddelen en zorgen dat de auto bij u wordt afgeleverd. Per voertuig ziet u vooraf wat het u in totaal kost, zodat u weet wat u biedt.",
+        "Caronix bemiddelt voor autobedrijven bij de inkoop van personenauto's uit de EU, onder meer uit Denemarken. U kiest een voertuig en koopt rechtstreeks van de verkoper. Wij bemiddelen en zorgen dat de auto bij u wordt afgeleverd. Per voertuig ziet u vooraf wat het u in totaal kost, zodat u weet wat u biedt. Achter Caronix staat ruim 25 jaar ervaring in de automotive branche.",
     },
     EN: {
       loginTitle: "Log in to your account",
@@ -46,7 +46,7 @@ export default function HomeClient({ children }: { children?: React.ReactNode })
       loginBtn: "Login",
       companyHeading: "Caronix: B2B Cartrading & Sourcing",
       companyText:
-        "Caronix brokers the purchase of passenger cars from the EU for car dealers, including from Denmark. You choose a vehicle and buy directly from the seller. We mediate and make sure the car is delivered to you. For every vehicle you see up front what it costs you in total, so you know what you are bidding.",
+        "Caronix brokers the purchase of passenger cars from the EU for car dealers, including from Denmark. You choose a vehicle and buy directly from the seller. We mediate and make sure the car is delivered to you. For every vehicle you see up front what it costs you in total, so you know what you are bidding. Behind Caronix stands more than 25 years of experience in the automotive industry.",
     },
   }[lang];
 

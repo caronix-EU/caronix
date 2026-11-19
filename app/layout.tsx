@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.caronix.nl"),
-  title: "Caronix | B2B Autohandel & Sourcing",
+  title: "Caronix | B2B autoinkoop uit de EU",
   description:
-    "Caronix is jouw betrouwbare B2B-partner in autohandel. Met meer dan 25 jaar ervaring bemiddelen wij in de in- en verkoop van personenauto's binnen de EU.",
+    "Caronix bemiddelt voor autobedrijven bij de inkoop van auto's uit de EU, onder meer Denemarken. Achter Caronix staat ruim 25 jaar ervaring in de automotive.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
