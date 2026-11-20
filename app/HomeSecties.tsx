@@ -12,28 +12,6 @@ type Auto = {
   photo_urls: string[] | null;
 };
 
-const STAPPEN = [
-  {
-    titel: "Kies een voertuig",
-    tekst: "Bekijk de voorraad en filter op merk, model, brandstof, bouwjaar, prijs en kilometerstand.",
-  },
-  {
-    titel: "Reken de kostprijs uit",
-    tekst:
-      "Bij elk voertuig ziet u in de kostprijscalculator de totale inkoopkosten en wat uw marge kan zijn.",
-  },
-  {
-    titel: "Breng een bod uit",
-    tekst:
-      "Wij leggen uw bod voor aan de verkoper. Bij akkoord wordt het voertuig aan u toegewezen.",
-  },
-  {
-    titel: "Betaling en levering",
-    tekst:
-      "U betaalt de auto aan de Deense verkoper en provisie en transport aan Caronix, voordat het transport begint. De levering duurt ongeveer 3 tot 4 weken na betaling.",
-  },
-];
-
 const VRAGEN = [
   {
     vraag: "Voor wie is Caronix bedoeld?",
@@ -65,47 +43,26 @@ const kop = { color: "#F2F3F4", fontFamily: "'Space Grotesk', sans-serif", fontW
 export default function HomeSecties({ nieuwste }: { nieuwste: Auto[] }) {
   return (
     <div className="px-6 md:px-10 py-14 max-w-5xl mx-auto" style={{ color: "#B7BEC7" }}>
-      {/* Zo werkt het */}
-      <section className="mb-16">
-        <h2 className="text-2xl mb-6" style={kop}>
-          Zo werkt inkopen via Caronix
-        </h2>
-        <ol className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {STAPPEN.map((st, i) => (
-            <li
-              key={st.titel}
-              className="flex gap-3 rounded-lg border p-4"
-              style={{ backgroundColor: "#0E1013", borderColor: "#1E2126" }}
-            >
-              <span
-                className="shrink-0 flex items-center justify-center rounded-full text-xs font-semibold"
-                style={{ width: 24, height: 24, backgroundColor: "#2E5A94", color: "#F2F3F4" }}
-              >
-                {i + 1}
-              </span>
-              <div>
-                <h3 className="text-sm" style={{ color: "#F2F3F4", fontWeight: 600 }}>
-                  {st.titel}
-                </h3>
-                <p className="text-xs mt-1" style={{ color: "#8A929C" }}>
-                  {st.tekst}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ol>
-        <p className="text-sm mt-4">
-          <Link href="/zo-werkt-het" className="underline" style={{ color: "#7FA8D9" }}>
-            Lees het volledige proces, met wie wat regelt en wat u betaalt →
-          </Link>
-        </p>
-        <p className="text-sm mt-2">
-          Zoekt u een bepaald voertuig dat nog niet in de voorraad staat?{" "}
-          <Link href="/zoekopdracht" className="underline" style={{ color: "#7FA8D9" }}>
-            Dien een zoekopdracht in
-          </Link>
-          .
-        </p>
+      {/* Voorraadlijst */}
+      <section
+        className="mb-16 rounded-lg border p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+        style={{ backgroundColor: "#0E1013", borderColor: "#1E2126" }}
+      >
+        <div>
+          <p className="text-base" style={{ color: "#F2F3F4" }}>
+            Mis geen voertuig: schrijf u in voor onze voorraadlijst met beschikbare Deense voertuigen.
+          </p>
+          <p className="text-xs mt-1" style={{ color: "#8A929C" }}>
+            Alleen voor autobedrijven.
+          </p>
+        </div>
+        <Link
+          href="/voorraadlijst"
+          className="shrink-0 px-5 py-3 rounded-md text-sm text-center"
+          style={{ backgroundColor: "#2E5A94", color: "#F2F3F4" }}
+        >
+          Aanmelden
+        </Link>
       </section>
 
       {/* Nieuwste voertuigen */}

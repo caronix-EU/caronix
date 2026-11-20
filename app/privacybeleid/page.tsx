@@ -65,6 +65,12 @@ export default function PrivacybeleidPage() {
             een database, maar komen direct in onze mailbox terecht.
           </li>
           <li>
+            Wanneer u zich aanmeldt voor onze voorraadlijst, of een zoekopdracht indient, ontvangen wij uw
+            bedrijfsnaam, naam, e-mailadres en BTW-nummer, en eventueel uw KvK-nummer, per e-mail. Voor de
+            voorraadlijst gebruiken wij deze gegevens alleen om u de lijst te sturen. Wij bewaren ze in onze
+            verzendlijst totdat u zich afmeldt.
+          </li>
+          <li>
             Onze website maakt gebruik van functionele cookies die nodig zijn om ingelogde
             beheerders herkend te houden. Deze cookies worden niet gebruikt voor tracking,
             profilering of advertenties.
@@ -91,7 +97,13 @@ export default function PrivacybeleidPage() {
         </h2>
         <p className="mb-6">
           E-mails die je ons stuurt bewaren wij zolang als nodig is om je vraag te beantwoorden en
-          eventuele vervolgcommunicatie mogelijk te maken, en niet langer dan noodzakelijk.
+          eventuele vervolgcommunicatie mogelijk te maken, en niet langer dan noodzakelijk. Gegevens in
+          onze verzendlijst voor de voorraadlijst bewaren wij tot u zich afmeldt. Afmelden kan op elk
+          moment door een e-mail te sturen aan{" "}
+          <a href="mailto:info@caronix.nl" className="underline" style={{ color: "#7FA8D9" }}>
+            info@caronix.nl
+          </a>
+          . Wij verwijderen uw gegevens dan uit de verzendlijst.
         </p>
 
         <h2 className="text-base mb-2 mt-8" style={{ color: "#F2F3F4", fontWeight: 600 }}>
